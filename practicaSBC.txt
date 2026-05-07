@@ -1,0 +1,963 @@
+2025/2026 2Q
+
+Práctica de Sistemas
+Basados en el Conocimiento
+
+Intel·ligència
+Intel·ligència
+Artificial
+Artificial
+cbea
+
+Departament de Ciències de la Computació
+Grau en Enginyeria Informàtica - UPC
+
+Índice general
+
+1. Organización, evaluación y entrega
+
+2
+
+2. Objetivos de aprendizaje
+
+3
+
+3. El problema
+
+4
+
+4. Guión de la práctica
+
+7
+
+5. Planificación de tareas
+
+10
+
+6. Conceptualización usando un modelo de lenguaje
+
+12
+
+7. Rúbrica de evaluación
+
+14
+
+8. Competencia de trabajo en equipo
+
+20
+
+8.1. Competencia de trabajo en equipo: práctica de SBC . . . . . . . . . . . . . . . . . . . . . . . 20
+8.2. Competencia de trabajo en equipo: Trabajo de innovación . . . . . . . . . . . . . . . . . . . . 21
+
+1
+
+Capı́tulo
+
+1
+
+Organización, evaluación y entrega
+Esta es la documentación de la práctica de sistemas basados en el conocimiento, en este documento
+tenéis:
+Los objetivos de aprendizaje de la práctica correspondientes al temario de la asignatura
+La descripción del problema que debéis resolver
+Lo que tenéis que incluir en el informe que deberéis entregar como resultado de la práctica
+La planificación semanal de la práctica incluyendo los objetivos que debéis ir cubriendo cada semana
+y la dedicación en horas estimada.
+Rúbrica de evaluación de la práctica
+La práctica se debe hacer preferentemente en grupos de tres. Intentad no hacerla solos, ya que os
+llevará mucho más trabajo.
+La práctica se debe desarrollar en CLIPS, el uso de este entorno se explicará en las clases de laboratorio.
+Planificad bien el desarrollo de la práctica y no lo dejéis todo para el último día, ya que no seréis capaces
+de acabarla y hacer un buen trabajo. En este documento tenéis indicaciones sobre el desarrollo de la práctica
+que os ayudará a planificar vuestro trabajo.
+La valoración de la práctica dependerá de la calidad del análisis del problema, de la adecuación de la cobertura de la ontología al problema y de la calidad de la solución. Leed el capítulo de la rúbrica de evaluación
+para una descripción detallada de los criterios de evaluación. La garantía de una buena nota es seguir los
+criterios que aparecen en la rúbrica.
+La entrega de la documentación será el día 24 de mayo en formato electrónico según las instrucciones
+que aparecerán en el racó.
+Se hará una entrega presencial de la práctica durante los días 27 al 29 de mayo, vuestro profesor
+corrector establecerá el día y la hora de entrega.
+
+2
+
+Capı́tulo
+
+2
+
+Objetivos de aprendizaje
+El objetivo de esta práctica es enfrentarse a un problema que necesita conocimiento experto para ser
+solucionado. El problema que se plantea necesita resolver tareas de análisis e identificación y construcción
+de una solución.
+Los objetivos específicos de esta práctica son:
+Analizar la naturaleza del problema e identificar las fuentes de conocimiento necesarias para solucionarlo.
+Poner en práctica una metodología sencilla para el análisis e implementación de sistemas basados en
+el conocimiento explicada en clase.
+Formalizar y representar el conocimiento necesario para solucionar el problema. Se ha de demostrar
+una aproximación metodológica en su construcción y una adecuada justificación de las decisiones. El
+resultado deberá ser una ontología que pueda utilizarse en la solución del problema.
+Identificar la naturaleza del método de resolución de problemas más adecuado y plantear el problema
+en función de este.
+Implementar mediante un lenguaje de reglas el procedimiento de resolución del problema.
+Aplicar una metodología de desarrollo basada en prototipaje rápido y diseño incremental.
+Saber escoger juegos de prueba suficientemente representativos para demostrar el funcionamiento del
+sistema y explicar los resultados.
+Tomar contacto con lenguajes de representación del conocimiento y de creación de sistemas basados
+en el conocimiento. Se ha de demostrar cierta comprensión y madurez a la hora de utilizar el lenguaje
+CLIPS
+Respecto a la evaluación, tenéis disponible una rúbrica que indica los criterios que se usarán para
+valorar la práctica y una descripción de cada uno de los niveles de valoración para cada criterio.
+
+3
+
+Capı́tulo
+
+3
+
+El problema
+La agencia de viajes al fin del mundo y mas allá está pensando en construir un sistema que permita
+personalizar las sugerencias de viajes a sus posibles clientes. Estos viajes consisten en un recorrido por
+varias ciudades del mundo incluyendo una recomendación sobre el tipo de alojamiento, los días de estancia,
+el medio de transporte a usar y los posibles sitios a visitar en cada ciudad.
+El sistema debe obtener información sobre los usuarios que pueda ser relevante para hacer la recomendación sobre el viaje. Podría interesar entre otras cosas:
+Características de los usuarios:
+• Edad, nivel cultural, si viajarán con niños, si el viaje es por un evento especial (bodas, viajes de
+fin de curso, ...)
+• Si el viaje es para una sola persona, una familia, un grupo de amigos o un grupo más grande
+• El objetivo del viaje (descanso, cultural, diversión, romántico...)
+Restricciones sobre el viaje:
+• Número mínimo/máximo de días que debería durar el viaje, número mínimo/máximo de ciudades
+a visitar, mínimo/máximo número de días por ciudad
+• El presupuesto aproximado, restricciones sobre uso de medios de transporte (no le gusta volar,
+prefiere el tren...), sobre la calidad de los alojamientos
+Preferencias sobre el viaje:
+• Si esta de acuerdo sacrificar duración y/o calidad para ajustar el presupuesto
+• Si prefiere visitar ciudades/lugares menos conocidos
+Deberéis pensar en otras características/restricciones/preferencias que puedan ser útiles para elaborar
+los viajes, no os restrinjáis únicamente a las que menciona este enunciado.
+La distinción entre una restricción y una preferencia es que una restricción se ha de cumplir obligatoriamente, una preferencia permite comparar soluciones.
+El objetivo del sistema es primero hacer preguntas y obtener deducciones que le permitan decidir el
+tipo de usuario con el que se está tratando, sus preferencias y restricciones y elaborar con ello el viaje más
+adecuado. No siempre todo debe ser preguntado, por ejemplo si es un viaje de bodas probablemente será un
+viaje romántico o si se va con niños, probablemente no se va a descansar.
+Tampoco es necesario explorar todas las posibilidades y hay que implementar el sistema de manera que
+imponga restricciones de sentido común que las reduzcan. Por ejemplo, si el viaje es de corta duración,
+probablemente no se querrá que las ciudades estén muy alejadas unas de otras. Dependiendo del número de
+días por ciudad, el número de lugares a visitar se puede reducir según el interés o importancia de los lugares
+(o cualquier otra característica que se os ocurra).
+4
+
+También se pueden tener restricciones de experto que puedan encajar con perfiles más o menos genéricos
+de usuarios o ciertos tipos de preferencias a partir de las cuales reducir la búsqueda. Por ejemplo, se pueden
+tener conjuntos de ciudades bajo distintas temáticas (ciudades mediterráneas: Barcelona, Marsella, Roma,
+Atenas, Estambul...; Grandes ciudades europeas: París, Londres, Roma, Berlín, Viena, Varsovia, Moscú...;
+Sudamerica Natural: Belem, Fortaleza, Río, Punta Arenas, Guayaquil, Lima, Quito...) que puedan cuadrar
+con ciertos tipos de viajes y solo generar viajes dentro de esas ciudades en lugar de incluirlas todas. También
+se pueden hacer estas selecciones dinámicamente si se incluye información en la ontología que permita
+hacerlas.
+La solución deberá ser la recomendación de dos planes de viaje al usuario que visiten ciudades diferentes.
+En esta recomendación se deberán detallar todos los aspectos concretos del viaje: precio total, duración del
+viaje, ciudades, días por ciudad, lugares a visitar en la ciudad, medios de transporte entre ciudades y tipo
+de alojamiento. También se incluirá información sobre las preferencias del usuario que se han cumplido en
+la solución.
+Deberéis contemplar el caso de que no se pueda dar una recomendación a causa de que las características
+y restricciones del usuario sean imposibles de cumplir.
+Respecto a los datos, podéis usar datos reales (por ejemplo las ciudades y lugares a visitar) y generados
+al azar (por ejemplo, los lugares de alojamiento y medios de transporte). También los podéis generar todos
+los datos al azar. No os costará mucho generar instancias aleatorias en el formato de CLIPS una vez hayáis
+decidido la ontología. Tampoco los precios han de ser reales, pero deberían seguir el sentido común, por
+ejemplo debería influir la distancia entre ciudades en los viajes o el nivel de vida de la ciudad en el alojamiento.
+Respecto a la cantidad de información en vuestra base de conocimiento, debería haber suficiente variedad
+para generar juegos de pruebas diferentes.
+Un ejemplo de viaje recomendado podría ser:
+Precio total (persona): 1535 euros
+Duración del viaje: 7 dias
+Ciudades: Londres (2 dias), París (3 dias), Berlín (2 dias)
+Visitas: Londres: National Gallery, British Museum; París: Louvre, Orsay, Eiffel, Notre Dame, Tullerias;
+Berlín: Museo Pérgamo, Puerta Brandenburgo, Checkpoint Charlie
+Alojamiento: Londres: Hotel LA 3*, París: Hotel PA 3*; Berlin: Hotel BA 3*
+Viajes: Origen-Londres: Avión, Londres-París: Avión; París-Berlín: Tren, Berlín-Origen: Avión
+La documentación deberá incluir:
+Análisis del problema siguiendo las diferentes fases de la metodología de ingeniería del conocimiento
+explicada en clase (identificación, conceptualización, formalización, implementación y prueba). Deberéis detallar estas fases en la documentación. Tened en cuenta que parte del proceso de conceptualización y formalización es la construcción de la ontología, por lo que deberéis explicar con detalle cómo
+la habéis construido.
+Ontología que hayáis creado para representar el conocimiento que necesita el sistema (podéis generar
+la documentación con Protègè)
+Un conjunto de pruebas no triviales que demuestren el funcionamiento del sistema.
+Además del documento explicando vuestro trabajo, deberéis entregar también el código fuente comentado
+del sistema que habéis implementado.
+La valoración de la práctica dependerá de la calidad del análisis del problema, de la adecuación de la
+cobertura de la ontología al problema y de la calidad de la solución. Leed las rúbricas de evaluación para
+una descripción detallada de los criterios de evaluación.
+
+5
+
+Entrega intermedia
+Para fomentar el trabajo continuado y el desarrollo real de la práctica usando la metodología basada
+en protipado incremental, voluntariamente podéis hacer una entrega del primer prototipo funcional que
+desarrolléis antes del 15 de mayo a las 23:59
+Este prototipo inicial no tiene que ser muy complejo, simplemente ha de ser capaz de hacer unas preguntas
+al usuario, hacer un razonamiento sencillo con las respuestas y generar una solución (aunque sea aleatoria).
+Este prototipo debería ser la base del resto del desarrollo, no simplemente algo solo para esta entrega y
+después hacer algo totalmente diferente.
+Se os indicará cuando se acerque la fecha cómo realizar la entrega de este prototipo inicial.
+
+Nota extra
+Dado que probablemente no seréis expertos en el dominio, una posibilidad es que uséis el sentido común
+para obtener el conocimiento con el que desarrollar la práctica.
+Otra posibilidad es tener un experto y usarlo para hacer esa extracción de conocimiento. Esto se puede
+hacer utilizando cualquiera de los modelos de lenguaje que existen actualmente (ChatGPT, Gemini...).
+Daremos un punto extra sobre la nota final de la práctica a los grupos que utilicen alguno de esos
+modelos de lenguaje para hacer la fase de conceptualización del sistema y se basen en el conocimiento
+adquirido para la fase de formalización.
+No es necesario utilizar todo lo que se obtenga del modelo de lenguaje, se puede añadir/quitar/modificar
+lo necesario para adaptarlo al sistema que queremos construir. El objetivo es hacer una fase de conceptualización más realista que inventarse el conocimiento.
+Se tendrá que documentar qué preguntas se le han hecho al modelo de lenguaje y que conocimiento se
+ha extraído de las respuestas dentro del apartado de conceptualización.
+Tenéis ejemplos en el capítulo 6 que os pueden ser útiles tanto del contexto que podéis usar como
+base para el modelo de lenguaje como de las posibles preguntas que se le pueden hacer y como tenéis que
+documentar esta parte.
+
+6
+
+Capı́tulo
+
+4
+
+Guión de la práctica
+Primera semana: CLIPS/Enunciado (13/4)
+Esta primera semana la deberéis dedicar a leer el enunciado, a hacer una especificación inicial y a tomar
+contacto con el lenguaje CLIPS.
+Esta semana se os explicará el funcionamiento del entorno de desarrollo de CLIPS. Es importante que
+leáis la documentación sobre el lenguaje CLIPS y os miréis los ejemplos que tenéis, sobre todo las prácticas
+de otros cuatrimestres, e intentéis ejecutarlos. Tenéis una FAQ en la página de laboratorio elaborada por
+alumnos de la asignatura que os debería solucionar la mayor parte de los problemas que tengáis con el
+lenguaje durante el desarrollo de la práctica, también tenéis algunos consejos prácticos.
+Tened en cuenta que CLIPS es diferente de los lenguajes de programación a los que estáis acostumbrados,
+por lo que es importante que empecéis cuanto antes a ver cómo funciona y ver ejemplos, ya que eso os ahorrará
+tiempo cuando empecéis a desarrollar la práctica.
+Mientras os vais haciendo con el lenguaje, estaría bien que empezarais a pensar en el dominio del que os
+habla el enunciado, sobre todo pensando en la ontología que deberéis construir.
+Podéis empezar a hacerla en papel, pensando qué conceptos y atributos os podrían ser interesantes.
+Podéis echar un vistazo al artículo “Ontology Development 101” que tenéis en la parte de teoría de la web
+como material complementario del tema 3 para orientaros sobre la metodología a usar.
+Si era importante en la primera práctica planificar vuestro trabajo, en esta práctica lo es más todavía.
+No lo dejéis todo para el último momento, en serio.
+
+Segunda semana: Especificación del problema y primera ontología (20/4)
+Esta semana deberíais hacer una especificación del problema y tener una versión clara de los elementos
+que os harán falta para crear la ontología del dominio. Como la idea es hacer un desarrollo incremental no
+hace falta que sea la ontología definitiva, pero ha de tener ya los elementos principales.
+Esta semana os podeis mirar la presentación que tenéis en la web de laboratorio que explica el funcionamiento del entorno de desarrollo de CLIPS. Es importante que os miréis los ejemplos que tenéis, sobre todo
+las prácticas de otros cuatrimestres, e intentéis ejecutarlos.
+Esta semana también podéis mirar la presentación sobre el uso de Protégé que está en la web de laboratorio. Es una herramienta sencilla de usar, no os costará demasiado aprender a manejarla. Con ella podréis
+exportar la ontología que creéis para usarla en CLIPS. Además, permite generar la documentación de la
+ontología, tanto la jerarquía con los conceptos como la descripción de las clases y atributos. Evidentemente,
+deberéis documentar primero los conceptos y atributos adecuadamente en Protégé.
+Mirad los ejemplos de prácticas de cuatrimestres pasados que tenéis en la web y sobre todo leeros los
+apuntes de metodologías de desarrollo de ontologías que tenéis en la web de la asignatura.
+
+7
+
+Tercera Semana: Descomposición en subproblemas/Ontología /Prototipo
+inicial (27/4)
+Uno de los puntos principales para que podáis empezar a implementar el sistema es hacer una descomposición del problema en subproblemas que os indiquen las diferentes fases para llegar a la solución.
+Debéis pensar que deberéis utilizar alguna de las metodologías de resolución de problemas explicadas
+en teoría en la implementación de la práctica. Eso quiere decir que la descomposición de problemas deberá
+encajar en esas metodologías, por lo que tenéis en ellas una guía sobre cómo plantear la solución.
+Tened en cuenta que a la hora de escribir la documentación deberéis explicar cómo se descompone
+el problema en subproblemas (conceptualización) y cómo los problemas encajan en las metodologías de
+resolución de problemas (formalización).
+A partir de esta descomposición y las metodologías de resolución de problemas escogidas podéis implementar unas pocas reglas que os solucionen una versión simplificada del problema. De esta manera tendréis
+el prototipo inicial que os permitirá evaluar vuestras decisiones y os guiará sobre cómo debéis completarlo.
+El objetivo de este prototipo inicial es detectar posibles problemas tanto en la ontología como en el diseño
+lo antes posible.
+En paralelo deberéis trabajar en la ontología de forma que cubra los conceptos que necesitáis para la
+versión simplificada del problema que estáis implementando en CLIPS. En la ontología deberéis introducir
+también algunas instancias. Marcaros como objetivo resolver inicialmente un subconjunto sencillo de problemas y decidid con eso qué conceptos de la ontología os serán necesarios y qué instancias. No hace falta
+que incluyáis todas las instancias desde el principio.
+En esta semana es muy importante que dividáis bien el trabajo entre los miembros del grupo. Tened
+siempre en consideración el desarrollo incremental, dividid el problema en módulos y subproblemas y focalizaros en obtener un pequeño prototipo inicial del que partir. Es una buena idea plantearos unos pocos casos
+que el sistema debería ser capaz de resolver y focalizaros en crear 1) los conceptos e instancias necesarios en
+la ontología, y 2) las reglas necesarias para que el sistema resuelva los casos planteados.
+
+Cuarta semana: Extensión del prototipo (4/5)
+Ya deberíais tener una idea bastante clara del sistema y haber validado las decisiones que habéis ido
+tomando.
+La ontología debería ser prácticamente definitiva
+La descomposición del problema en subproblemas os debería haber dado los módulos que necesitáis
+implementar
+Tendréis un conjunto de casos a partir de los cuales desarrollar el prototipo inicial
+Tendréis un prototipo limitado que funciona.
+Ahora deberéis ampliar el prototipo para incluir nuevos casos. Estos nuevos casos deberéis dirigirlos hacia
+obtener un conjunto de juegos de prueba suficientemente variados que os permitan probar las posibilidades
+con las que se puede encontrar el sistema.
+Es importante para el buen desarrollo de la práctica que al acabar esta semana tengáis un prototipo
+funcionando en CLIPS que resuelva un subconjunto del problema siguiendo todos los pasos necesarios,
+no un prototipo que solo implementa parte de los pasos de resolución.
+No os olvidéis de empezar a trabajar en la documentación de la práctica, no es buena idea dejarlo para
+el final. Podéis empezar documentando la ontología, no os limitéis a describirla, explicad cómo la habéis
+elaborado, indicad las justificaciones necesarias y no omitáis las decisiones que habéis ido tomando.
+
+8
+
+Quinta semana: Prototipo definitivo (11/5)
+A estas alturas ya deberíais haber fijado todas las decisiones de la práctica.
+Deberéis plantearos los casos que queréis probar y mirar que los resultados que esperáis sean los correctos.
+Haced una lista de casos pensando los diferentes escenarios que es capaz de resolver vuestro sistema.
+Pensad que los casos han de ser suficientemente variados tanto en lo que respecta a elementos que
+intervienen como su complejidad. Tened en cuenta que estos casos os servirán de juegos de prueba, por lo
+que estáis matando dos pájaros de un tiro. Aprovechad para guardar los resultados y documentarlos.
+También deberíais ser capaces de explicar los resultados que obtenéis en función del conocimiento que
+habéis programado.
+No os olvidéis de la documentación, no es buena idea dejarla para el final y tened siempre presente que
+ha de ser un reflejo de vuestro trabajo.
+
+Sexta semana: Juegos de prueba y documentación (18/5)
+Esta semana deberíais dedicarla a generar los juegos de prueba que debéis incluir en la documentación.
+Para ellos solo tenéis que ejecutar los diferentes casos que hayáis escogido durante el proceso de desarrollo.
+Las pruebas deberíais documentarlas adecuadamente explicando cuál es el escenario de la prueba y cuáles
+son los resultados que da el sistema.
+El resto de la documentación debería explicar todo el proceso de desarrollo siguiendo las diferentes fases
+que tiene la metodología vista en teoría. La documentación debería estar estructurada también siguiendo
+estas fases de desarrollo.
+
+9
+
+Capı́tulo
+
+5
+
+Planificación de tareas
+Esta planificación os puede servir como orientación para organizar y repartir el trabajo de la práctica.
+Tened en cuenta que una planificación adecuada beneficiará la calidad de vuestra práctica.
+Las horas asignadas al trabajo de la práctica según los créditos ECTS que le corresponde son 20,7 por
+cada componente del grupo, más las horas de las clases de laboratorio que son 6. En total la práctica
+corresponde a un esfuerzo de 80 horas durante seis semanas. Tened en cuenta que son horas ECTS, por lo
+que este es el tiempo de dedicación de un alumno medio para hacer la práctica a un nivel aceptable (digamos
+que una nota de notable) para llegar al sobresaliente hace falta algo más de dedicación.
+Las tareas a desarrollar dentro de las semanas que indica el guión son las que aparecen en la siguiente
+tabla. También se indican las horas de dedicación aproximada del grupo en conjunto.
+Semana 1 (3h lab + 8 horas trabajo externo)
+1. Introducirse en la programación en el lenguaje CLIPS
+2. Mirar las presentaciones sobre el entorno de CLIPS
+3. Mirar/ejecutar los ejemplos
+4. Leerse el documento de CLIPS snippets
+5. Leer y entender en enunciado
+6. Plantearse el dominio del enunciado desde el punto de vista del experto, fuentes de información
+Semana 2 (3h lab + 12 horas trabajo externo)
+1. Mirar las presentaciones sobre el uso de Protégé
+2. Hacer una versión informal de la ontología del dominio (primero separadamente cada componente
+del grupo y después puesta en común de ideas)
+3. Primera versión de la ontología en Protégé + su documentación en el propio Protégé
+4. Mirarse las soluciones de prácticas pasadas que hay en la web
+5. Plantearse la resolución del problema desde el punto de vista del experto
+Semana 3 (3h lab + 12 horas trabajo externo)
+1. Plantearse un conjunto de problemas a resolver por el sistema y como los resolvería un experto
+2. Plantearse la resolución del problema desde el punto de vista del ingeniero del conocimiento (metodologías de resolución de problemas, descomposición/modularización de la resolución)
+3. Documentar la metodología de resolución que usará el sistema y como encaja su descomposición en
+esa metodología
+4. Planificar el desarrollo incremental de la práctica a partir de los problemas escogidos y decidir el
+objetivo del primer prototipo
+5. Desarrollo de un prototipo inicial que resuelva un problema sencillo
+6. Versión mejorada de la ontología en Protégé + su documentación en el propio Protégé
+7. Documentar los problemas escogidos y la planificación del desarrollo incremental
+
+10
+
+Semana 4 (3h lab + 12 horas trabajo externo)
+1. Extensión del prototipo inicial para solucionar algunos casos más
+Semana 5 (3h lab + 12 horas trabajo externo)
+1. Completar el prototipo
+2. Generar juegos de prueba con los problemas usados para el desarrollo
+3. Decidir juegos de prueba adicionales y probarlos
+4. Documentar los resultados (justificación de los casos, explicación de su resolución)
+Semana 6 (3h lab + 8 horas trabajo externo)
+1. Completar la documentación de los juegos de prueba
+2. Completar la documentación de la práctica
+
+Las horas de laboratorio de las dos primeras semanas os servirán para aprender como funciona CLIPS y
+Protégé. El resto de horas de laboratorio las deberéis dedicar para las consultas al profesor de laboratorio,
+sincronización entre los componentes del grupo y desarrollo de la práctica.
+Es importante que os dividáis las tareas entre los tres miembros del grupo de manera adecuada. Muchas
+de las tareas se pueden hacer de manera paralela. Y recordad que tres personas delante de un PC durante
+una hora son una hora de trabajo, no tres.
+
+11
+
+Capı́tulo
+
+6
+
+Conceptualización usando un modelo de lenguaje
+Los modelos de lenguaje actuales como ChatGPT, Gemini, ... pueden ser utilizados como un experto
+en un dominio para hacer elicitación de conocimiento usando un contexto que le indique al modelo como
+ha de comportarse, en que dominio es experto y cuál es el objetivo de la tarea. En este caso la idea sería
+obtener la información que permita a un ingeniero del conocimiento realizar la fase de conceptualización en
+la construcción de un sistema basado en el conocimiento.
+En el caso de la práctica se puede poner al sistema en situación introduciendo un contexto que le ponga
+en el rol de experto al que se le puedan hacer preguntas sobre el dominio 1 .
+Por ejemplo, se podría usar este contexto para hacer la fase de conceptualización de la práctica:
+We are going to do a role playing exercise. You are going to help a knowledge engineer perform
+knowledge elicitation for building a rule-based expert system for the recommendation of touristic
+travelling. You are a travel agent with wide experience in this problem who knows how to match
+different kinds of people (families, students groups, friends groups, couples with and without children) according to their profile and characteristics to different touristic destinations. The travel
+should fit to the interests of the traveller as having fun, sightseeing, cultural interests, relaxation,
+romantic escapade. It also has to abide by the constraints of the traveler, for instance budget or
+quality of the accomodation. The knowledge engineer is going to ask about the characteristics,
+criteria, and knowledge that you use for making the decisions. Your answer should be direct and
+precise. The answers should be helpful for building rules for making decisions from the answers
+of people who want to travel.
+
+ò
+
+Fijaos que las instrucciones no le piden al modelo que os dé directamente los conceptos que
+tenéis que poner en la ontología, ni que os dé las reglas que tenéis que escribir. El objetivo es
+tener una conversación simulada con un experto.
+
+A partir de aquí se pueden hacer preguntas al modelo como si fuera el experto en el dominio y extraer
+los conceptos principales y relaciones que se tendrán que representar en el sistema y el procedicimento
+que utiliza para resolver el problema que permitirá luego formalizarlo y encajarlo con la metodología de
+resolución de problemas adecuada.
+Estos son ejemplos de preguntas que podríamos hacer para hacer la extracción del conocimiento:
+When travelling with children, what kind of accommodation is more convenient?
+When there are budget constraints, which travel expense is the best for adjusting the cost?
+When travelling for sightseeing, is it better to look for cheap accomodations and move from place to
+place or stay on one place and use transportation?
+1
+Por lo general los modelos de lenguaje funcionan mejor si se usa el inglés, por lo que usaremos ese idioma en los ejemplos,
+pero en principio debería poder utilizarse cualquier otro idioma.
+
+12
+
+When travelling for relaxation, is it better to rent a room in a hotel or to look for an apartment?
+For a large group, when the number of days is limited, is it better to visit a small number of places
+and stay more days on each place, or to try to visit as many places as possible?
+What would you recommend as destination for a couple of newlyweds?
+How would you change your recommendation depending on the age of the traveler?
+When the budget is low, would you recommend a reduction on the number of days or to save on the
+accommodation and the transportation?
+A partir de las respuestas se puede ir extrayendo el conocimiento y la metodología de resolución del
+experto que documentaríamos en la fase de conceptualización y que nos serviría como base para la fase de
+formalización, construyendo la ontología con los conceptos extraídos y decidiendo como encajar la resolución
+del experto en las metodologías de resolución de problemas que se pueden usar para construir un SBC.
+El objetivo del trabajo para obtener el punto extra es definir un contexto de entrada que sea algo más
+elaborado, escoger un conjunto de preguntas que usar para hacer la extracción de conocimiento y usarlo
+para la fase de conceptualización y formalización de la práctica.
+No os limitéis a un solo modelo de lenguaje, cada uno tiene sus capacidades y las respuestas a veces son
+más elaboradas, más directas, o tener diferentes perspectivas. Un modelo más capaz tampoco tiene por qué
+ser más útil, probad las diferentes versiones de los modelos.
+De cara a la documentación del uso del modelo de lenguaje se pide que lo siguiente:
+Tratad el modelo de lenguaje con un experto humano con al que habéis entrevistado. Especificad
+claramente los momentos en los que os ha ayudado, sobre todo, en la fase de conceptualización, y
+quizá en la de formalización. Cuando haya alguna decisión que sea necesario justificar, o información
+interesante que sea relevante para la práctica, como por ejemplo, incluir un concepto en la ontología o
+no, determinar ciertas reglas, etc. Indicad cuándo la decisión se ha tomado gracias a una recomendación
+del experto.
+En algún lugar del informe, como por ejemplo en la conceptualización, o en un anexo, debéis escribir
+el prompt (contexto) de usuario que habéis dado al modelo de lenguaje y las preguntas más relevantes
+o más interesantes que le hayáis hecho.
+Opcionalmente, también podéis añadir en el informe, como un anexo, las partes relevantes de la
+conversación que habéis tenido con el modelo de lenguaje. No copiéis toda la conversación en el
+informe.
+
+13
+
+Capı́tulo
+
+7
+
+Rúbrica de evaluación
+Esta es la rúbrica de evaluación de la práctica. La corrección se hará según estos criterios y siguiendo
+las pautas que se detallan para cada nivel de evaluación.
+Deberéis seguir estos criterios a la hora de escribir vuestra documentación y explicar qué habéis hecho
+en el desarrollo de la práctica y como lo habéis hecho.
+
+14
+
+15
+
+Conceptualización
+
+No hay una descripción informal del
+proceso de resolución del problema
+
+Descripción breve de los problemas
+y subproblemas que intervienen en
+la resolución
+
+No hay una descripción de los problemas y subproblemas que intervienen en la resolución
+
+Identificación de las fuentes de conocimiento
+
+Descripción clara de los objetivos
+del problema y los resultados del sistema
+
+Descripción de los conceptos del dominio
+
+Análisis detallado de la viabilidad
+de construir el SBC
+
+Análisis breve de la viabilidad de
+construcción del SBC
+
+Descripción informal del proceso de
+resolución y como se organizan los
+problemas y subproblemas
+
+Ejemplos del conocimiento experto
+extraído del dominio
+
+Descripción detallada de los problemas y subproblemas que intervienen en la resolución
+
+Descripción del los conceptos del
+dominio
+
+Descripción clara de los objetivos
+del problema y los resultados del sistema
+
+La descripción del problema es algo
+más elaborada que la que ya hay en
+el enunciado
+
+Bien
+
+La descripción del problema es una
+copia de la descripción que hay en
+el enunciado
+
+Regular
+
+No hay una descripción de los conceptos que intervienen en el dominio
+
+La descripción del problema es una
+copia de la descripción que hay en
+el enunciado
+
+Aplicación de la metodología de diseño e implementación
+Identificación
+
+```
+```
+``Valoración
+Mal
+```
+Criterio
+```
+
+16
+
+Implementación
+
+Formalización
+
+```
+``` Valoración
+```
+Criterio
+``
+
+Mal
+
+La documentación de la ontología es superficial (solo se describe que significan los
+conceptos)
+
+La ontología no está documentada
+
+La representación del proceso de resolución mediante reglas sigue el proceso de
+razonamiento establecido por la metodología de resolución de problemas escogida
+
+La representación del proceso de resolución mediante reglas no sigue el proceso
+de razonamiento establecido por la metodología de resolución de problemas escogida
+
+La metodología de desarrollo no es incremental, ni se han implementado prototipos
+
+No se modulariza la resolución del problema
+
+No se modulariza la resolución del problema
+
+No se ha utilizado ninguna metodología de
+desarrollo
+
+Hay una representación adecuada de la ontología
+
+Solo se menciona que metodología de resolución de problemas es más adecuada
+
+Hay una representación inadecuada de la
+ontología
+
+No se explica la metodología de resolución
+de problemas más adecuada, ni como los
+subproblemas se encajan en ella
+
+Se detalla el proceso de razonamiento de
+cada subproblema identificado
+
+La ontología incluye la mayoría de los conceptos, unos pocos atributos simples, algunas relaciones
+
+La ontología tiene solo unos pocos conceptos, unos pocos atributos simples, sin relaciones
+
+No se explica el proceso de razonamiento
+de cada subproblema identificado
+
+Se explica brevemente como se ha construido la ontología
+
+No se explica como se ha construido la ontología
+
+Regular
+
+Bien
+
+Se ha seguido una metodología incremental, desarrollándose prototipos y se describe como se ha hecho
+
+La representación del proceso de resolución mediante reglas sigue el proceso de
+razonamiento establecido por la metodología de resolución de problemas escogida
+
+La resolución del problema se divide en
+módulos usando los subproblemas identificados
+
+Hay una representación adecuada de la ontología
+
+Justificación de la metodología de resolución de problemas más adecuada y como
+los problemas identificados en la fase anterior encajan en la metodología
+
+Se detalla el proceso de razonamiento de
+cada subproblema identificado
+
+Documentación detallada de la ontología
+(se describen todos los elementos de la ontología), incluyendo un grafo de la jerarquía de conceptos
+
+La ontología incluye todos los conceptos,
+todos los atributos necesarios, todas las relaciones necesarias
+
+Se explica detalladamente como se ha
+construido la ontología
+
+17
+
+18
+
+Cumplimento de lo que pide el
+enunciado
+
+Documentación
+
+Calidad de la práctica
+Cobertura
+
+Implementación en CLIPS
+Conocimiento
+del
+lenguaje
+
+Explicaciones
+
+Juegos de prueba
+Cobertura
+
+```
+``` Valoración
+```
+Criterio
+``
+
+Mal
+
+No se han seguido las recomendaciones/indicaciones para la implementación
+de la práctica
+
+No se han tenido en cuenta todas las restricciones del problema
+
+Se han simplificado elementos del problema
+
+Mal presentada, mal estructurada, explicaciones difíciles de entender, poco cuidada
+
+Cobertura superficial, solo los casos más
+simples
+
+Presentación pasable, estructurada, explicaciones poco elaboradas, poco precisas o llenas de vaguedades
+
+La práctica se ha realizado acorde a lo
+que pedía el enunciado
+
+Buena presentación, estructura adecuada
+y siguiendo la metodología de desarrollo,
+explicaciones bien elaboradas, concisas y
+precisas
+
+Cobertura avanzada, tanto los casos más
+comunes como las excepciones
+
+Reglas donde casi todo lo hace el consecuente y no se aprovecha el formalismo
+de reglas de producción
+
+Cobertura media, solo los casos más comunes
+
+Programación basada en cadenas de razonamiento y aprovechamiento del formalismo de reglas de producción
+
+Existencia de módulos de reglas y mecanismos de control básicos
+
+Uso de variables globales
+
+Existencia de módulos de reglas y mecanismos de control elaborados
+
+Uso de deftemplates y objetos
+
+Reglas desorganizadas
+
+Uso de deftemplates y objetos
+
+Se incluye la salida y se explica adecuadamente en función de las entradas y el
+conocimiento del sistema
+
+En el documento se incluye la salida original del programa
+
+Uso básicamente de unordered facts
+
+Solo se incluye la salida y no se explica
+nada más.
+
+Se incluye la salida y solo se describe verbalmente el resultado
+
+Se explica como se han elegido
+
+No se explica como se han elegido
+
+En el documento no está la salida original
+del programa y parece hecho a mano
+
+Se incluyen casos no usados en el desarrollo
+
+Se limitan a probar los casos usados en el
+desarrollo
+
+No se explica cómo se han elegido
+
+Son muchos (≥6) y diferentes
+
+Son pocos (≥4,<6) pero diferentes
+
+Bien
+
+Son pocos (<4) y todos iguales
+
+Regular
+
+19
+
+Mal
+
+Uso de gráficos
+
+Claridad
+
+Organización
+
+Elaboración de informes de prácticas
+Ortografía y gramática
+
+```
+``` Valoración
+```
+Criterio
+``
+
+No se utilizan ni los gráficos, ni las figuras
+necesarias para facilitar la comprensión, o
+los que se utilizan no aclaran nada.
+
+Alguna de las figuras o gráficos parece poco clarificadora o innecesaria.
+
+En algún punto del documento se echa en
+falta algún gráfico o figura que ayude a
+aclarar los conceptos.
+
+En alguna ocasión hay alguna frase larga y
+confusa que se tiene que releer varias veces
+para acabar de entender.
+
+La introducción no acaba de centrar bien
+el tema, o los diferentes apartados no acaban de estar bien ligados en una secuencia
+lógica, o falta un buen cierre con resumen
+y/o conclusiones.
+
+No se introduce bien el tema. El desarrollo
+no sigue una línea coherente. Se pasa de
+un aspecto a otro sin un orden. No hay un
+resumen y/o conclusiones.
+
+El texto es muy difícil de entender; las frases son largas y confusas; constantemente
+se tienen que releer partes del texto para
+entenderlas y en varios casos finalmente no
+se entiende lo que se quiere decir.
+
+Hay algún aspecto claramente mejorable.
+
+El documento tiene pocas faltas de ortografía y gramaticales.
+
+El documento está muy mal organizado.
+
+El documento está plagado de errores de
+ortografía y gramaticales. Desde este punto de vista, es un documento impresentable.
+
+Regular
+
+Bien
+
+No hay ninguno que sobre, ni tampoco se
+echa ninguno en falta.
+
+Todos los gráficos y figuras usados tienen
+sentido y ayudan a entender la explicación.
+
+Las frases son cortas y fáciles de entender
+a la primera.
+
+Los contenidos son muy claros.
+
+El documento en una primera parte plantea el problema, en una segunda desarrolla y elabora la solución y en una tercera
+resume los resultados y plantea las conclusiones.
+
+Las diferentes secciones y subsecciones están bien ligadas, y facilitan el seguimiento
+del contenido.
+
+El documento está organizado de forma lógica.
+
+El documento no tiene faltas de ortografía,
+ni errores gramaticales.
+
+Capı́tulo
+
+8
+
+Competencia de trabajo en equipo
+8.1.
+
+Competencia de trabajo en equipo: práctica de SBC
+
+Con esta práctica se evaluará la competencia de trabajo en equipo. Esto significa utilizar la planificación
+propuesta para ayudaros a planificar el trabajo y establecer una pautas entre el grupo de trabajo para
+desarrollar la práctica de manera eficaz.
+Estas pautas incluyen el repartir el trabajo, establecer un calendario de plazos de entregas, realizar
+reuniones periódicas, establecer mecanismos de comunicación y participación entre los miembros del equipo
+y detectar y resolver conflictos.
+No es trabajo en equipo el repartirse el trabajo la primera semana y no verse hasta la semana anterior
+a la entrega.
+El formulario de evaluación que utilizaremos para la competencia es el que tenéis a continuación.
+
+Treball en equip
+Nivell 2: Contribuir a consolidar l’equip, planificant objectius, treballant amb
+eficàcia i afavorint-hi la comunicació, la distribució de tasques i la cohesió.
+Establir i mantenir les relacions cooperatives, i identificar i marcar pautes
+per superar-ne les dificultats
+Ajuda en la creació de les pautes de treball per a resoldre els conflictes en l’equip
+Té en compte els punts de vista dels altres i retroalimenta de manera constructiva
+Actua constructivament per afrontar els conflictes interns de l’equip
+Establir i planificar els objectius del grup, les responsabilitats i les tasques
+que s’han de dur a terme
+Contribueix a l’establiment dels objectius de l’equip
+Assumeix els objectius de l’equip com a propis
+Proposa un repartiment igualitari de tasques i responsabilitats
+Treballar amb eficàcia i crear oportunitats per motivar la participació dels
+altres
+Compleix els terminis definits en la planificació del treball
+Busca la participació de totes les persones en els debats i resultats
+Intercanviar informació, aportar idees i modificar les propostes de treball
+Participa de forma activa en els moments de trobada, compartint la informació, els
+coneixements i les experiències
+Aporta idees i propostes amb afany de millora
+Accepta i integra la crítica constructiva per a la millora del seu propi treball
+
+20
+
+Alumnes
+1
+
+2
+
+3
+
+1
+
+2
+
+3
+
+1
+
+2
+
+3
+
+1
+
+2
+
+3
+
+8.2.
+
+Competencia de trabajo en equipo: Trabajo de innovación
+
+La competencia de trabajo en equipo también se evalúa con el trabajo de innovación que debéis desarrollar
+durante todo el cuatrimeste (y no una semana antes de entregarlo). Por ello, durante la entrega presencial
+de la práctica también tendréis que rellenar un formulario de evaluación de trabajo en equipo como el que
+tenéis a continuación.
+Fijaos bien en las preguntas del cuestionario. Pensad que a estas alturas ya deberíais tener muy avanzado
+el trabajo teniendo prácticamente acabada la documentación y pensado como vais a hacer la presentación.
+
+Treball en equip (Puntuació 1 a 5)
+Nivell 3: Dirigir i dinamitzar grups de treball, resolent-ne possibles conflictes,
+valorant el treball fet amb les altres persones i avaluant l’efectivitat de l’equip
+així com la presentació dels resultats generats.
+Actuar recíprocament amb generositat, eficàcia i professionalitat, així com
+negociar i resoldre els possibles conflictes que sorgeixin
+Facilita l’aprenentatge dels seus companys i companyes
+Participa activament en la resolució dels conflictes de l’equip
+Busca acords de l’equip cedint parcialment des de la seva pròpia posició inicial
+Reconèixer i adquirir el rol de coordinador o coordinadora en alguna tasca o
+donar-li suport
+Estableix una planificació viable del treball que cal dur a terme
+Dirigeix les reunions amb eficàcia
+Proposa al grup fites ambicioses i ben definides
+Assigna tasques i responsabilitats a cada membre del grup de manera igualitària
+Revisar el treball que s’ha fet amb altres persones i detectar els factors que
+hi han influït
+S’interessa pel treball dels altres i aporta millores als seus continguts
+Relaciona els resultats obtinguts pels diferents membres de l’equip i ajuda a interpretarlos en grup
+Analitza els factors que han intervingut en els resultats de l’equip
+Analitza els factors que han intervingut en els resultats de l’equip
+Emet judicis crítics i constructius sobre els resultats obtinguts i el funcionament de
+l’equip
+S’implica en la preparació de la presentació dels resultats
+Contribueix a analitzar els punts febles del funcionament del grup
+
+21
+
+Alumnes
+1
+
+2
+
+3
+
+1
+
+2
+
+3
+
+1
+
+2
+
+3
+
+1
+
+2
+
+3
+
+22
+
+
