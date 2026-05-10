@@ -1,0 +1,133 @@
+@prefix : <http://example.org/ia-sbc-viajes#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:OntologiaViajesSBC rdf:type owl:Ontology ;
+  rdfs:comment "Ontologia de suport per a la practica SBC de recomanacio de viatges. Es pot obrir amb Protege i documenta els conceptes que tambe apareixen als deftemplates de viajes.clp." .
+
+#################################################################
+# Classes principals
+#################################################################
+
+:Entidad rdf:type owl:Class .
+
+:Usuario rdf:type owl:Class ;
+  rdfs:subClassOf :Entidad ;
+  rdfs:comment "Perfil del client: edat, grup, infants, pressupost, objectiu, restriccions i preferencies." .
+
+:Ciudad rdf:type owl:Class ;
+  rdfs:subClassOf :Entidad ;
+  rdfs:comment "Destinacio candidata amb zona, continent, cost, seguretat, popularitat i etiquetes turistiques." .
+
+:Servicio rdf:type owl:Class ;
+  rdfs:subClassOf :Entidad .
+
+:Alojamiento rdf:type owl:Class ;
+  rdfs:subClassOf :Servicio ;
+  rdfs:comment "Servei d'estada associat a una ciutat, amb categoria, qualitat, preu i compatibilitat familiar." .
+
+:Transporte rdf:type owl:Class ;
+  rdfs:subClassOf :Servicio ;
+  rdfs:comment "Connexio entre origen/desti o entre ciutats: mitja, cost, hores i ambit." .
+
+:Actividad rdf:type owl:Class ;
+  rdfs:subClassOf :Servicio ;
+  rdfs:comment "Visita concreta d'una ciutat: nom, tipus, durada, cost i prioritat." .
+
+:Restriccion rdf:type owl:Class ;
+  rdfs:subClassOf :Entidad ;
+  rdfs:comment "Condicio obligatoria que un pla ha de complir: pressupost maxim, evitar avio, dies, qualitat minima." .
+
+:Preferencia rdf:type owl:Class ;
+  rdfs:subClassOf :Entidad ;
+  rdfs:comment "Criteri no obligatori que permet puntuar i comparar plans: tren, llocs menys coneguts, qualitat." .
+
+:PaqueteViaje rdf:type owl:Class ;
+  rdfs:subClassOf :Entidad ;
+  rdfs:comment "Solucio recomanada: dues o tres ciutats, dies per ciutat, transport, allotjament, visites, preu i preferencies complertes." .
+
+:Etapa rdf:type owl:Class ;
+  rdfs:subClassOf :Entidad ;
+  rdfs:comment "Part d'un paquet: ciutat concreta, dies d'estada, allotjament i visites." .
+
+#################################################################
+# Propietats d'objecte
+#################################################################
+
+:viajaA rdf:type owl:ObjectProperty ;
+  rdfs:domain :PaqueteViaje ;
+  rdfs:range :Ciudad .
+
+:incluyeEtapa rdf:type owl:ObjectProperty ;
+  rdfs:domain :PaqueteViaje ;
+  rdfs:range :Etapa .
+
+:usaAlojamiento rdf:type owl:ObjectProperty ;
+  rdfs:domain :Etapa ;
+  rdfs:range :Alojamiento .
+
+:incluyeActividad rdf:type owl:ObjectProperty ;
+  rdfs:domain :Etapa ;
+  rdfs:range :Actividad .
+
+:usaTransporte rdf:type owl:ObjectProperty ;
+  rdfs:domain :PaqueteViaje ;
+  rdfs:range :Transporte .
+
+:cumplePreferencia rdf:type owl:ObjectProperty ;
+  rdfs:domain :PaqueteViaje ;
+  rdfs:range :Preferencia .
+
+:respetaRestriccion rdf:type owl:ObjectProperty ;
+  rdfs:domain :PaqueteViaje ;
+  rdfs:range :Restriccion .
+
+#################################################################
+# Propietats de dades
+#################################################################
+
+:edad rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Usuario ;
+  rdfs:range xsd:integer .
+
+:presupuestoEuros rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Usuario ;
+  rdfs:range xsd:integer .
+
+:duracionMaxDias rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Usuario ;
+  rdfs:range xsd:integer .
+
+:nombre rdf:type owl:DatatypeProperty ;
+  rdfs:range xsd:string .
+
+:costeDiario rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Ciudad ;
+  rdfs:range xsd:integer .
+
+:precioNoche rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Alojamiento ;
+  rdfs:range xsd:integer .
+
+:calidad rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Alojamiento ;
+  rdfs:range xsd:integer .
+
+:costeTransporte rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Transporte ;
+  rdfs:range xsd:integer .
+
+:horasTransporte rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Transporte ;
+  rdfs:range xsd:integer .
+
+:precioTotal rdf:type owl:DatatypeProperty ;
+  rdfs:domain :PaqueteViaje ;
+  rdfs:range xsd:integer .
+
+:puntuacion rdf:type owl:DatatypeProperty ;
+  rdfs:domain :PaqueteViaje ;
+  rdfs:range xsd:integer .
+
