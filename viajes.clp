@@ -448,6 +448,7 @@
    (return FALSE))
 
 (deffunction guia-compatible (?motivo ?guia)
+   (if (eq ?motivo mixto) then (return TRUE))
    (if (or (eq ?motivo ?guia) (eq ?guia mixto)) then (return TRUE))
    (if (and (eq ?motivo descanso) (eq ?guia naturaleza)) then (return TRUE))
    (if (and (eq ?motivo naturaleza) (eq ?guia descanso)) then (return TRUE))
@@ -563,6 +564,10 @@
    (if (and (not (eq ?b1 ninguna)) (contiene-ciudad ?b1 ?a1 ?a2 ?a3)) then (return FALSE))
    (if (and (not (eq ?b2 ninguna)) (contiene-ciudad ?b2 ?a1 ?a2 ?a3)) then (return FALSE))
    (if (and (not (eq ?b3 ninguna)) (contiene-ciudad ?b3 ?a1 ?a2 ?a3)) then (return FALSE))
+   (return TRUE))
+
+(deffunction rutas-distintas (?a1 ?a2 ?a3 ?b1 ?b2 ?b3)
+   (if (and (eq ?a1 ?b1) (eq ?a2 ?b2) (eq ?a3 ?b3)) then (return FALSE))
    (return TRUE))
 
 ;; ==============================================================================
@@ -876,7 +881,7 @@
                          (bonus-calidad ?minq ?q1 ?q2 0)
                          (bonus-precio ?precio ?presupuesto)))
          (assert (PlanCandidato
-            (id (str-cat "plan2-" ?c1 "-" ?c2 "-" ?a1 "-" ?a2 "-" ?m0 "-" ?m12 "-" ?mr))
+            (id (str-cat "plan2-" ?c1 "-" ?c2 "-" ?a1 "-" ?a2 "-" ?m0 "-" ?m12 "-" ?mr "-" ?gm1 "-" ?gm2))
             (uid ?uid)
             (score ?score)
             (precio ?precio)
@@ -965,7 +970,7 @@
                          (bonus-calidad ?minq ?q1 ?q2 ?q3)
                          (bonus-precio ?precio ?presupuesto)))
          (assert (PlanCandidato
-            (id (str-cat "plan3-" ?c1 "-" ?c2 "-" ?c3 "-" ?a1 "-" ?a2 "-" ?a3 "-" ?m0 "-" ?m12 "-" ?m23 "-" ?mr))
+            (id (str-cat "plan3-" ?c1 "-" ?c2 "-" ?c3 "-" ?a1 "-" ?a2 "-" ?a3 "-" ?m0 "-" ?m12 "-" ?m23 "-" ?mr "-" ?gm1 "-" ?gm2 "-" ?gm3))
             (uid ?uid)
             (score ?score)
             (precio ?precio)
@@ -1017,23 +1022,25 @@
    =>
    (assert (PlanElegido (orden 2) (id ?id2))))
 
-(defrule seleccionar-segundo-plan-distinto-si-no-hay-sin-solape
+(defrule seleccionar-segundo-plan-con-ruta-distinta-si-no-hay-sin-solape
    (declare (salience 5))
    (Fase (nombre seleccion))
    (PlanElegido (orden 1) (id ?id1))
+   (PlanCandidato (id ?id1) (c1 ?pc1) (c2 ?pc2) (c3 ?pc3))
    (not (PlanElegido (orden 2)))
    (not
       (and
          (PlanCandidato (id ?otro) (c1 ?oc1) (c2 ?oc2) (c3 ?oc3))
          (test (not (eq ?otro ?id1)))
-         (PlanCandidato (id ?id1) (c1 ?pc1) (c2 ?pc2) (c3 ?pc3))
          (test (rutas-sin-solape ?pc1 ?pc2 ?pc3 ?oc1 ?oc2 ?oc3))))
-   (PlanCandidato (id ?id2) (score ?s))
+   (PlanCandidato (id ?id2) (score ?s) (c1 ?c1) (c2 ?c2) (c3 ?c3))
    (test (not (eq ?id2 ?id1)))
+   (test (rutas-distintas ?pc1 ?pc2 ?pc3 ?c1 ?c2 ?c3))
    (not
       (and
-         (PlanCandidato (id ?id3) (score ?s3&:(> ?s3 ?s)))
-         (test (not (eq ?id3 ?id1)))))
+         (PlanCandidato (id ?id3) (score ?s3&:(> ?s3 ?s)) (c1 ?x1) (c2 ?x2) (c3 ?x3))
+         (test (not (eq ?id3 ?id1)))
+         (test (rutas-distintas ?pc1 ?pc2 ?pc3 ?x1 ?x2 ?x3))))
    =>
    (assert (PlanElegido (orden 2) (id ?id2))))
 
@@ -1226,7 +1233,7 @@
       (evento ninguno)
       (motivo naturaleza)
       (presupuesto_euros 3500)
-      (duracion_max_dias 9)
+      (duracion_max_dias 8)
       (ciudades_min 2)
       (ciudades_max 3)
       (prefiere_tren no)

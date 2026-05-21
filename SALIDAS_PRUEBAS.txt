@@ -1,0 +1,269 @@
+SALIDAS LITERALES DE LOS JUEGOS DE PRUEBA
+Sistema: viajes.clp
+Comandos previos en CLIPS:
+  (clear)
+  (load "viajes.clp")
+
+==============================================================================
+CASO 1: Familia con ninos y presupuesto alto
+Comando: (caso-familia-alto)
+Salida literal:
+-> [MODO PRUEBA] Usuario precargado. Iniciando deducciones...
+-> [INFO] Perfil deducido. Generando itinerarios candidatos...
+-> [INFO] Seleccionando las mejores alternativas...
+
+============================================================
+PLAN 2 RECOMENDADO
+============================================================
+Puntuacion interna: 169
+Precio total estimado por persona: 3222 euros
+Duracion: 8 dias
+Ciudades: Cancun (4 dias), Costa Rica (4 dias)
+Visitas:
+ - Cancun: Playa Delfines, cenote, tarde libre
+ - Costa Rica: Volcan Arenal, Monteverde, sendero nocturno
+Alojamiento:
+ - Cancun: Resort Maya Familiar (resort)
+ - Costa Rica: Lodge Arenal 4* (hotel-superior)
+Transportes:
+ - Origen -> Cancun: avion
+ - Cancun -> Costa Rica: avion
+ - Costa Rica -> Origen: avion
+Preferencias cumplidas: respeta la calidad minima de alojamiento; 
+
+============================================================
+PLAN 1 RECOMENDADO
+============================================================
+Puntuacion interna: 237
+Precio total estimado por persona: 3488 euros
+Duracion: 8 dias
+Ciudades: Punta Cana (2 dias), Cancun (3 dias), Costa Rica (3 dias)
+Visitas:
+ - Punta Cana: Playa Bavaro, Isla Saona, tarde libre en resort
+ - Cancun: Playa Delfines, cenote, tarde libre
+ - Costa Rica: Volcan Arenal, Monteverde, sendero nocturno
+Alojamiento:
+ - Punta Cana: Resort Bavaro Familiar (resort)
+ - Cancun: Resort Maya Familiar (resort)
+ - Costa Rica: Lodge Arenal 4* (hotel-superior)
+Transportes:
+ - Origen -> Punta Cana: avion
+ - Punta Cana -> Cancun: avion
+ - Cancun -> Costa Rica: avion
+ - Costa Rica -> Origen: avion
+Preferencias cumplidas: respeta la calidad minima de alojamiento; 
+
+-> [FIN] Razonamiento completado.
+
+==============================================================================
+CASO 2: Estudiante que prioriza tren y evita avion
+Comando: (caso-estudiante-tren)
+Salida literal:
+-> [MODO PRUEBA] Usuario precargado. Iniciando deducciones...
+-> [INFO] Perfil deducido. Generando itinerarios candidatos...
+-> [INFO] Seleccionando las mejores alternativas...
+
+============================================================
+PLAN 2 RECOMENDADO
+============================================================
+Puntuacion interna: 187
+Precio total estimado por persona: 1075 euros
+Duracion: 6 dias
+Ciudades: Paris (3 dias), Amsterdam (3 dias)
+Visitas:
+ - Paris: Louvre, Torre Eiffel, paseo por el Sena
+ - Amsterdam: Rijksmuseum, canales, Jordaan
+Alojamiento:
+ - Paris: Hostal Montmartre (hostal)
+ - Amsterdam: Hostal Canal (hostal)
+Transportes:
+ - Origen -> Paris: tren
+ - Paris -> Amsterdam: tren
+ - Amsterdam -> Origen: tren
+Preferencias cumplidas: usa tren en algun tramo; respeta la calidad minima de alojamiento; 
+
+============================================================
+PLAN 1 RECOMENDADO
+============================================================
+Puntuacion interna: 189
+Precio total estimado por persona: 914 euros
+Duracion: 6 dias
+Ciudades: Lisboa (3 dias), Sevilla (3 dias)
+Visitas:
+ - Lisboa: Belem, Jeronimos, Museo del Azulejo
+ - Sevilla: Real Alcazar, Catedral, Archivo de Indias
+Alojamiento:
+ - Lisboa: Apartamento Alfama (apartamento)
+ - Sevilla: Apartamento Santa Cruz (apartamento)
+Transportes:
+ - Origen -> Lisboa: tren
+ - Lisboa -> Sevilla: tren
+ - Sevilla -> Origen: tren
+Preferencias cumplidas: usa tren en algun tramo; incluye ciudades menos masificadas; respeta la calidad minima de alojamiento; 
+
+-> [FIN] Razonamiento completado.
+
+==============================================================================
+CASO 3: Pareja romantica por aniversario
+Comando: (caso-pareja-romantica)
+Salida literal:
+-> [MODO PRUEBA] Usuario precargado. Iniciando deducciones...
+-> [INFO] Perfil deducido. Generando itinerarios candidatos...
+-> [INFO] Seleccionando las mejores alternativas...
+
+============================================================
+PLAN 2 RECOMENDADO
+============================================================
+Puntuacion interna: 196
+Precio total estimado por persona: 990 euros
+Duracion: 7 dias
+Ciudades: Lisboa (3 dias), Sevilla (4 dias)
+Visitas:
+ - Lisboa: Alfama, mirador de Santa Lucia, tranvia 28
+ - Sevilla: Real Alcazar, Santa Cruz, atardecer junto al Guadalquivir
+Alojamiento:
+ - Lisboa: Apartamento Alfama (apartamento)
+ - Sevilla: Apartamento Santa Cruz (apartamento)
+Transportes:
+ - Origen -> Lisboa: tren
+ - Lisboa -> Sevilla: tren
+ - Sevilla -> Origen: tren
+Preferencias cumplidas: usa tren en algun tramo; incluye ciudades menos masificadas; respeta la calidad minima de alojamiento; 
+
+============================================================
+PLAN 1 RECOMENDADO
+============================================================
+Puntuacion interna: 288
+Precio total estimado por persona: 1899 euros
+Duracion: 7 dias
+Ciudades: Paris (2 dias), Roma (2 dias), Viena (3 dias)
+Visitas:
+ - Paris: Torre Eiffel, Montmartre, paseo nocturno por el Sena
+ - Roma: Trastevere, Fontana di Trevi, mirador del Gianicolo
+ - Viena: Belvedere, cafe historico, paseo por el Danubio
+Alojamiento:
+ - Paris: Hotel Seine 3* (hotel-estandar)
+ - Roma: Hotel Navona 4* (hotel-superior)
+ - Viena: Hotel Opera 4* (hotel-superior)
+Transportes:
+ - Origen -> Paris: tren
+ - Paris -> Roma: tren
+ - Roma -> Viena: tren
+ - Viena -> Origen: avion
+Preferencias cumplidas: usa tren en algun tramo; incluye ciudades menos masificadas; respeta la calidad minima de alojamiento; 
+
+-> [FIN] Razonamiento completado.
+
+==============================================================================
+CASO 4: Amigos en viaje de fin de curso
+Comando: (caso-amigos-diversion)
+Salida literal:
+-> [MODO PRUEBA] Usuario precargado. Iniciando deducciones...
+-> [INFO] Perfil deducido. Generando itinerarios candidatos...
+-> [INFO] Seleccionando las mejores alternativas...
+
+============================================================
+PLAN 2 RECOMENDADO
+============================================================
+Puntuacion interna: 157
+Precio total estimado por persona: 909 euros
+Duracion: 6 dias
+Ciudades: Lisboa (3 dias), Sevilla (3 dias)
+Visitas:
+ - Lisboa: Barrio Alto, LX Factory, tarde en Cais do Sodre
+ - Sevilla: Triana, Alameda de Hercules, noche en el centro
+Alojamiento:
+ - Lisboa: Apartamento Alfama (apartamento)
+ - Sevilla: Apartamento Santa Cruz (apartamento)
+Transportes:
+ - Origen -> Lisboa: tren
+ - Lisboa -> Sevilla: tren
+ - Sevilla -> Origen: tren
+Preferencias cumplidas: respeta la calidad minima de alojamiento; 
+
+============================================================
+PLAN 1 RECOMENDADO
+============================================================
+Puntuacion interna: 159
+Precio total estimado por persona: 1280 euros
+Duracion: 6 dias
+Ciudades: Lisboa (3 dias), Ibiza (3 dias)
+Visitas:
+ - Lisboa: Barrio Alto, LX Factory, tarde en Cais do Sodre
+ - Ibiza: Cala Comte, Dalt Vila, noche en Playa d'en Bossa
+Alojamiento:
+ - Lisboa: Apartamento Alfama (apartamento)
+ - Ibiza: Hotel Puerto 3* (hotel-estandar)
+Transportes:
+ - Origen -> Lisboa: tren
+ - Lisboa -> Ibiza: avion
+ - Ibiza -> Origen: barco
+Preferencias cumplidas: respeta la calidad minima de alojamiento; 
+
+-> [FIN] Razonamiento completado.
+
+==============================================================================
+CASO 5: Naturaleza y lugares menos conocidos
+Comando: (caso-naturaleza-menos-conocido)
+Salida literal:
+-> [MODO PRUEBA] Usuario precargado. Iniciando deducciones...
+-> [INFO] Perfil deducido. Generando itinerarios candidatos...
+-> [INFO] Seleccionando las mejores alternativas...
+
+============================================================
+PLAN 2 RECOMENDADO
+============================================================
+Puntuacion interna: 175
+Precio total estimado por persona: 2938 euros
+Duracion: 8 dias
+Ciudades: Cancun (4 dias), Costa Rica (4 dias)
+Visitas:
+ - Cancun: Playa Delfines, cenote, tarde libre
+ - Costa Rica: Volcan Arenal, Monteverde, sendero nocturno
+Alojamiento:
+ - Cancun: Hotel Centro 3* (hotel-estandar)
+ - Costa Rica: Lodge Arenal 4* (hotel-superior)
+Transportes:
+ - Origen -> Cancun: avion
+ - Cancun -> Costa Rica: avion
+ - Costa Rica -> Origen: avion
+Preferencias cumplidas: incluye ciudades menos masificadas; respeta la calidad minima de alojamiento; 
+
+============================================================
+PLAN 1 RECOMENDADO
+============================================================
+Puntuacion interna: 178
+Precio total estimado por persona: 3442 euros
+Duracion: 8 dias
+Ciudades: Kyoto (4 dias), Bali (4 dias)
+Visitas:
+ - Kyoto: Arashiyama, jardines de templos, paseo por el rio Kamo
+ - Bali: Ubud, arrozales de Tegallalang, playa de Sanur
+Alojamiento:
+ - Kyoto: Ryokan Higashiyama (hotel-superior)
+ - Bali: Resort Ubud (resort)
+Transportes:
+ - Origen -> Kyoto: avion
+ - Kyoto -> Bali: avion
+ - Bali -> Origen: avion
+Preferencias cumplidas: incluye ciudades menos masificadas; respeta la calidad minima de alojamiento; 
+
+-> [FIN] Razonamiento completado.
+
+==============================================================================
+CASO 6: Restricciones incompatibles
+Comando: (caso-imposible-sin-avion-asia)
+Salida literal:
+-> [MODO PRUEBA] Usuario precargado. Iniciando deducciones...
+-> [INFO] Perfil deducido. Generando itinerarios candidatos...
+-> [INFO] Seleccionando las mejores alternativas...
+
+============================================================
+NO SE HA ENCONTRADO NINGUNA RECOMENDACION FACTIBLE
+============================================================
+Las restricciones introducidas no pueden satisfacerse con la base de conocimiento actual.
+Sugerencias: aumentar presupuesto/dias, permitir avion o bajar la calidad minima.
+
+-> [FIN] Razonamiento completado.
+
+
