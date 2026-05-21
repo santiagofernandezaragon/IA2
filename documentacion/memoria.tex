@@ -5,7 +5,7 @@
 \usepackage[spanish]{babel}
 \usepackage[a4paper,margin=2.6cm]{geometry}
 \usepackage{xcolor}
-\usepackage{enumitem}
+\usepackage{titlesec}
 \usepackage[hidelinks]{hyperref}
 
 \definecolor{UPCBlue}{HTML}{123B66}
@@ -13,9 +13,12 @@
 
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.35em}
-\setlist[enumerate,1]{label=\arabic*.,leftmargin=1.1cm,itemsep=0.45em,topsep=0.35em}
-\setlist[enumerate,2]{label=\arabic{enumi}.\arabic*.,leftmargin=1.25cm,itemsep=0.25em,topsep=0.2em}
-\setlist[enumerate,3]{label=\arabic{enumi}.\arabic{enumii}.\arabic*.,leftmargin=1.45cm,itemsep=0.15em,topsep=0.15em}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+\titleformat{\section}{\Large\bfseries\color{UPCBlue}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\large\bfseries\color{UPCBlue}}{\thesubsection}{0.7em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{0.7em}{}
+\newcommand{\pendiente}{\par\textit{Contenido pendiente de redactar.}\par}
 
 \newcommand{\tituloPractica}{Sistema experto de\\[0.18em] recomendaci\'on de viajes}
 \newcommand{\subtituloPractica}{Pr\'actica de Sistemas Basados en el Conocimiento}
@@ -24,6 +27,7 @@
 
 \begin{document}
 
+\hypersetup{pageanchor=false}
 \begin{titlepage}
     \thispagestyle{empty}
     \color{UPCBlue}
@@ -56,240 +60,287 @@
     \vspace{1.0cm}
 \end{titlepage}
 
+\hypersetup{pageanchor=true}
 \pagenumbering{roman}
 \setcounter{page}{1}
+\tableofcontents
+\newpage
 
-\section*{\color{UPCBlue}\'Indice propuesto de la memoria}
-\addcontentsline{toc}{section}{\'Indice propuesto de la memoria}
+\pagenumbering{arabic}
+\setcounter{page}{1}
 
-Esta plantilla inicial contiene la portada y la estructura completa de la
-documentaci\'on. El contenido de cada apartado se redactar\'a en las siguientes
-iteraciones.
+\section{Introducci\'on}
+\subsection{Contexto de la pr\'actica y motivaci\'on del sistema}
+\pendiente
+\subsection{Estructura de la memoria y metodolog\'ia seguida}
+\pendiente
 
-\vspace{0.5cm}
-\textbf{Elementos preliminares}
-\begin{itemize}[leftmargin=1.1cm,itemsep=0.2em,topsep=0.2em]
-    \item Portada.
-    \item \'Indice general.
-    \item \'Indice de figuras y tablas.
-\end{itemize}
+\section{Identificaci\'on del problema}
+\subsection{Descripci\'on del problema de recomendaci\'on de viajes}
+\pendiente
+\subsection{Alcance, supuestos y l\'imites del sistema}
+\pendiente
+\subsection{Viabilidad de construir un Sistema Basado en el Conocimiento}
+\pendiente
+\subsection{Fuentes de conocimiento utilizadas}
+\pendiente
+\subsection{Objetivos del sistema}
+\pendiente
+\subsection{Resultados esperados y requisitos de la recomendaci\'on}
+\pendiente
 
-\begin{enumerate}
-    \item Introducci\'on
-    \begin{enumerate}
-        \item Contexto de la pr\'actica y motivaci\'on del sistema.
-        \item Estructura de la memoria y metodolog\'ia seguida.
-    \end{enumerate}
+\section{Conceptualizaci\'on}
+\subsection{Descripci\'on del dominio de viajes personalizados}
+\pendiente
+\subsection{Conceptos principales del dominio}
+\subsubsection{Usuario, perfil de viaje y grupo viajero}
+\pendiente
+\subsubsection{Ciudades y caracter\'isticas tur\'isticas}
+\pendiente
+\subsubsection{Alojamientos y calidad de estancia}
+\pendiente
+\subsubsection{Actividades, visitas y gu\'ias de visita}
+\pendiente
+\subsubsection{Conexiones, transportes y etapas del recorrido}
+\pendiente
+\subsubsection{Restricciones obligatorias y preferencias comparativas}
+\pendiente
+\subsubsection{Planes candidatos y planes recomendados}
+\pendiente
+\subsection{Conocimiento experto extra\'ido del dominio}
+\subsubsection{Reglas de sentido com\'un sobre perfiles de usuario}
+\pendiente
+\subsubsection{Criterios de compatibilidad de destinos, alojamientos y transportes}
+\pendiente
+\subsubsection{Criterios para comparar soluciones factibles}
+\pendiente
+\subsubsection{Tratamiento de restricciones incompatibles y no soluci\'on}
+\pendiente
+\subsection{Conceptualizaci\'on apoyada por un modelo de lenguaje}
+\subsubsection{Contexto y prompt de elicitaci\'on de conocimiento}
+\pendiente
+\subsubsection{Preguntas realizadas al experto simulado}
+\pendiente
+\subsubsection{Conocimiento incorporado, adaptado o descartado}
+\pendiente
+\subsection{Descomposici\'on del problema en subproblemas}
+\subsubsection{Adquisici\'on de datos del usuario}
+\pendiente
+\subsubsection{Deducci\'on del perfil, restricciones y preferencias}
+\pendiente
+\subsubsection{Filtrado de recursos compatibles}
+\pendiente
+\subsubsection{Generaci\'on de itinerarios candidatos}
+\pendiente
+\subsubsection{C\'alculo de precio y puntuaci\'on de alternativas}
+\pendiente
+\subsubsection{Selecci\'on de dos planes con ciudades diferentes}
+\pendiente
+\subsubsection{Explicaci\'on del resultado o del caso sin recomendaci\'on}
+\pendiente
+\subsection{Descripci\'on informal del proceso de resoluci\'on}
+\pendiente
 
-    \item Identificaci\'on del problema
-    \begin{enumerate}
-        \item Descripci\'on del problema de recomendaci\'on de viajes.
-        \item Alcance, supuestos y l\'imites del sistema.
-        \item Viabilidad de construir un Sistema Basado en el Conocimiento.
-        \item Fuentes de conocimiento utilizadas.
-        \item Objetivos del sistema.
-        \item Resultados esperados y requisitos que debe cumplir la recomendaci\'on.
-    \end{enumerate}
+\section{Formalizaci\'on}
+\subsection{Naturaleza del problema y m\'etodo de resoluci\'on escogido}
+\subsubsection{Clasificaci\'on del perfil del usuario}
+\pendiente
+\subsubsection{Generaci\'on, revisi\'on y comparaci\'on de planes}
+\pendiente
+\subsubsection{Encaje entre los subproblemas y el m\'etodo de resoluci\'on}
+\pendiente
+\subsection{Desarrollo de la ontolog\'ia}
+\subsubsection{Dominio, cobertura y preguntas que debe responder}
+\pendiente
+\subsubsection{T\'erminos relevantes del dominio}
+\pendiente
+\subsubsection{Clases, jerarqu\'ia y decisiones de modelado}
+\pendiente
+\subsubsection{Propiedades, atributos y restricciones de valores}
+\pendiente
+\subsubsection{Relaciones entre conceptos}
+\pendiente
+\subsubsection{Instancias necesarias para la base de conocimiento}
+\pendiente
+\subsection{Ontolog\'ia final del sistema}
+\subsubsection{Grafo de la jerarqu\'ia de conceptos}
+\pendiente
+\subsubsection{Descripci\'on detallada de clases}
+\pendiente
+\subsubsection{Descripci\'on detallada de atributos y relaciones}
+\pendiente
+\subsubsection{Correspondencia entre la ontolog\'ia y la representaci\'on en CLIPS}
+\pendiente
+\subsection{Formalizaci\'on del razonamiento por subproblemas}
+\subsubsection{Datos de entrada y hechos de trabajo}
+\pendiente
+\subsubsection{Restricciones duras del viaje}
+\pendiente
+\subsubsection{Preferencias y heur\'isticas de puntuaci\'on}
+\pendiente
+\subsubsection{Construcci\'on del precio total y duraci\'on del viaje}
+\pendiente
+\subsubsection{Elecci\'on de dos recomendaciones diferentes}
+\pendiente
+\subsubsection{Justificaci\'on de preferencias cumplidas y no soluci\'on}
+\pendiente
 
-    \item Conceptualizaci\'on
-    \begin{enumerate}
-        \item Descripci\'on del dominio de viajes personalizados.
-        \item Conceptos principales del dominio.
-        \begin{enumerate}
-            \item Usuario, perfil de viaje y grupo viajero.
-            \item Ciudades y caracter\'isticas tur\'isticas.
-            \item Alojamientos y calidad de estancia.
-            \item Actividades, visitas y gu\'ias de visita.
-            \item Conexiones, transportes y etapas del recorrido.
-            \item Restricciones obligatorias y preferencias comparativas.
-            \item Planes candidatos y planes recomendados.
-        \end{enumerate}
-        \item Conocimiento experto extra\'ido del dominio.
-        \begin{enumerate}
-            \item Reglas de sentido com\'un sobre perfiles de usuario.
-            \item Criterios de compatibilidad de destinos, alojamientos y transportes.
-            \item Criterios para comparar soluciones factibles.
-            \item Tratamiento de restricciones incompatibles y no soluci\'on.
-        \end{enumerate}
-        \item Conceptualizaci\'on apoyada por un modelo de lenguaje.
-        \begin{enumerate}
-            \item Contexto y prompt de elicitaci\'on de conocimiento.
-            \item Preguntas realizadas al experto simulado.
-            \item Conocimiento incorporado, adaptado o descartado.
-        \end{enumerate}
-        \item Descomposici\'on del problema en subproblemas.
-        \begin{enumerate}
-            \item Adquisici\'on de datos del usuario.
-            \item Deducci\'on del perfil, restricciones y preferencias.
-            \item Filtrado de recursos compatibles.
-            \item Generaci\'on de itinerarios candidatos.
-            \item C\'alculo de precio y puntuaci\'on de alternativas.
-            \item Selecci\'on de dos planes con ciudades diferentes.
-            \item Explicaci\'on del resultado o del caso sin recomendaci\'on.
-        \end{enumerate}
-        \item Descripci\'on informal del proceso de resoluci\'on.
-    \end{enumerate}
+\section{Implementaci\'on}
+\subsection{Organizaci\'on del proyecto y archivos entregados}
+\pendiente
+\subsection{Representaci\'on del conocimiento en CLIPS}
+\subsubsection{\texttt{deftemplates} y hechos principales}
+\pendiente
+\subsubsection{Base de conocimiento de ciudades, alojamientos, visitas y conexiones}
+\pendiente
+\subsubsection{Hechos din\'amicos de usuario, candidatos y planes elegidos}
+\pendiente
+\subsection{Funciones auxiliares del sistema}
+\pendiente
+\subsection{Reglas y fases del motor de inferencia}
+\subsubsection{Bienvenida y entrevista}
+\pendiente
+\subsubsection{Deducciones expertas}
+\pendiente
+\subsubsection{Generaci\'on de candidatos}
+\pendiente
+\subsubsection{Selecci\'on de recomendaciones}
+\pendiente
+\subsubsection{Salida explicada y cierre del sistema}
+\pendiente
+\subsection{Mecanismos de control y modularizaci\'on del razonamiento}
+\pendiente
+\subsection{Decisiones de implementaci\'on relevantes}
+\subsubsection{Restricciones obligatorias frente a preferencias}
+\pendiente
+\subsubsection{C\'alculo num\'erico de precios}
+\pendiente
+\subsubsection{Control de rutas distintas y caso imposible}
+\pendiente
+\subsection{Desarrollo incremental y prototipos}
+\subsubsection{Prototipo inicial}
+\pendiente
+\subsubsection{Extensiones y revisiones intermedias}
+\pendiente
+\subsubsection{Versi\'on final}
+\pendiente
+\subsubsection{Planificaci\'on y organizaci\'on del trabajo del grupo}
+\pendiente
+\subsection{Instrucciones de ejecuci\'on}
+\pendiente
 
-    \item Formalizaci\'on
-    \begin{enumerate}
-        \item Naturaleza del problema y m\'etodo de resoluci\'on escogido.
-        \begin{enumerate}
-            \item Clasificaci\'on del perfil del usuario.
-            \item Generaci\'on, revisi\'on y comparaci\'on de planes.
-            \item Justificaci\'on del encaje entre los subproblemas y el m\'etodo.
-        \end{enumerate}
-        \item Desarrollo de la ontolog\'ia.
-        \begin{enumerate}
-            \item Dominio, cobertura y preguntas que debe responder.
-            \item T\'erminos relevantes del dominio.
-            \item Clases, jerarqu\'ia y decisiones de modelado.
-            \item Propiedades, atributos y restricciones de valores.
-            \item Relaciones entre conceptos.
-            \item Instancias necesarias para la base de conocimiento.
-        \end{enumerate}
-        \item Ontolog\'ia final del sistema.
-        \begin{enumerate}
-            \item Grafo de la jerarqu\'ia de conceptos.
-            \item Descripci\'on detallada de clases.
-            \item Descripci\'on detallada de atributos y relaciones.
-            \item Correspondencia entre la ontolog\'ia y la representaci\'on en CLIPS.
-        \end{enumerate}
-        \item Formalizaci\'on del razonamiento por subproblemas.
-        \begin{enumerate}
-            \item Datos de entrada y hechos de trabajo.
-            \item Restricciones duras del viaje.
-            \item Preferencias y heur\'isticas de puntuaci\'on.
-            \item Construcci\'on del precio total y duraci\'on del viaje.
-            \item Elecci\'on de dos recomendaciones diferentes.
-            \item Justificaci\'on de preferencias cumplidas y no soluci\'on.
-        \end{enumerate}
-    \end{enumerate}
+\section{Juegos de prueba y validaci\'on}
+\subsection{Criterios de selecci\'on de los juegos de prueba}
+\pendiente
+\subsection{Cobertura de casos comunes, restricciones y excepciones}
+\pendiente
+\subsection{Caso 1: familia con ni\~nos y presupuesto alto}
+\subsubsection{Escenario, objetivo y entrada}
+\pendiente
+\subsubsection{Resultado esperado}
+\pendiente
+\subsubsection{Salida original de CLIPS}
+\pendiente
+\subsubsection{Explicaci\'on del resultado obtenido}
+\pendiente
+\subsection{Caso 2: estudiante que prioriza tren y evita avi\'on}
+\subsubsection{Escenario, objetivo y entrada}
+\pendiente
+\subsubsection{Resultado esperado}
+\pendiente
+\subsubsection{Salida original de CLIPS}
+\pendiente
+\subsubsection{Explicaci\'on del resultado obtenido}
+\pendiente
+\subsection{Caso 3: pareja rom\'antica por aniversario}
+\subsubsection{Escenario, objetivo y entrada}
+\pendiente
+\subsubsection{Resultado esperado}
+\pendiente
+\subsubsection{Salida original de CLIPS}
+\pendiente
+\subsubsection{Explicaci\'on del resultado obtenido}
+\pendiente
+\subsection{Caso 4: grupo de amigos en viaje de fin de curso}
+\subsubsection{Escenario, objetivo y entrada}
+\pendiente
+\subsubsection{Resultado esperado}
+\pendiente
+\subsubsection{Salida original de CLIPS}
+\pendiente
+\subsubsection{Explicaci\'on del resultado obtenido}
+\pendiente
+\subsection{Caso 5: naturaleza y lugares menos conocidos}
+\subsubsection{Escenario, objetivo y entrada}
+\pendiente
+\subsubsection{Resultado esperado}
+\pendiente
+\subsubsection{Salida original de CLIPS}
+\pendiente
+\subsubsection{Explicaci\'on del resultado obtenido}
+\pendiente
+\subsection{Caso 6: restricciones incompatibles y no soluci\'on}
+\subsubsection{Escenario, objetivo y entrada}
+\pendiente
+\subsubsection{Resultado esperado}
+\pendiente
+\subsubsection{Salida original de CLIPS}
+\pendiente
+\subsubsection{Explicaci\'on del resultado obtenido}
+\pendiente
+\subsection{Verificaci\'on del cumplimiento del enunciado}
+\pendiente
+\subsection{An\'alisis global de los resultados de prueba}
+\pendiente
 
-    \item Implementaci\'on
-    \begin{enumerate}
-        \item Organizaci\'on del proyecto y archivos entregados.
-        \item Representaci\'on del conocimiento en CLIPS.
-        \begin{enumerate}
-            \item \texttt{deftemplates} y hechos principales.
-            \item Base de conocimiento de ciudades, alojamientos, visitas y conexiones.
-            \item Hechos din\'amicos de usuario, candidatos y planes elegidos.
-        \end{enumerate}
-        \item Funciones auxiliares del sistema.
-        \item Reglas y fases del motor de inferencia.
-        \begin{enumerate}
-            \item Bienvenida y entrevista.
-            \item Deducciones expertas.
-            \item Generaci\'on de candidatos.
-            \item Selecci\'on de recomendaciones.
-            \item Salida explicada y cierre del sistema.
-        \end{enumerate}
-        \item Mecanismos de control y modularizaci\'on del razonamiento.
-        \item Decisiones de implementaci\'on relevantes.
-        \begin{enumerate}
-            \item Restricciones obligatorias frente a preferencias.
-            \item C\'alculo num\'erico de precios.
-            \item Control de rutas distintas y caso imposible.
-        \end{enumerate}
-        \item Desarrollo incremental y prototipos.
-        \begin{enumerate}
-            \item Prototipo inicial.
-            \item Extensiones y revisiones intermedias.
-            \item Versi\'on final.
-            \item Planificaci\'on y organizaci\'on del trabajo del grupo.
-        \end{enumerate}
-        \item Instrucciones de ejecuci\'on.
-    \end{enumerate}
+\section{Conclusiones}
+\subsection{Cumplimiento de objetivos}
+\pendiente
+\subsection{Fortalezas del sistema construido}
+\pendiente
+\subsection{Limitaciones actuales y posibles mejoras}
+\pendiente
+\subsection{Aprendizajes sobre ontolog\'ias, reglas y Sistemas Basados en el Conocimiento}
+\pendiente
 
-    \item Juegos de prueba y validaci\'on
-    \begin{enumerate}
-        \item Criterios de selecci\'on de los juegos de prueba.
-        \item Cobertura de casos comunes, restricciones y excepciones.
-        \item Caso 1: familia con ni\~nos y presupuesto alto.
-        \begin{enumerate}
-            \item Escenario, objetivo y entrada.
-            \item Resultado esperado.
-            \item Salida original de CLIPS.
-            \item Explicaci\'on del resultado obtenido.
-        \end{enumerate}
-        \item Caso 2: estudiante que prioriza tren y evita avi\'on.
-        \begin{enumerate}
-            \item Escenario, objetivo y entrada.
-            \item Resultado esperado.
-            \item Salida original de CLIPS.
-            \item Explicaci\'on del resultado obtenido.
-        \end{enumerate}
-        \item Caso 3: pareja rom\'antica por aniversario.
-        \begin{enumerate}
-            \item Escenario, objetivo y entrada.
-            \item Resultado esperado.
-            \item Salida original de CLIPS.
-            \item Explicaci\'on del resultado obtenido.
-        \end{enumerate}
-        \item Caso 4: grupo de amigos en viaje de fin de curso.
-        \begin{enumerate}
-            \item Escenario, objetivo y entrada.
-            \item Resultado esperado.
-            \item Salida original de CLIPS.
-            \item Explicaci\'on del resultado obtenido.
-        \end{enumerate}
-        \item Caso 5: naturaleza y lugares menos conocidos.
-        \begin{enumerate}
-            \item Escenario, objetivo y entrada.
-            \item Resultado esperado.
-            \item Salida original de CLIPS.
-            \item Explicaci\'on del resultado obtenido.
-        \end{enumerate}
-        \item Caso 6: restricciones incompatibles y no soluci\'on.
-        \begin{enumerate}
-            \item Escenario, objetivo y entrada.
-            \item Resultado esperado.
-            \item Salida original de CLIPS.
-            \item Explicaci\'on del resultado obtenido.
-        \end{enumerate}
-        \item Verificaci\'on del cumplimiento del enunciado.
-        \item An\'alisis global de los resultados de prueba.
-    \end{enumerate}
+\section{Bibliograf\'ia y fuentes}
+\subsection{Material de la asignatura y enunciado}
+\pendiente
+\subsection{Fuentes del dominio de viajes utilizadas}
+\pendiente
+\subsection{Herramientas y recursos de implementaci\'on}
+\pendiente
 
-    \item Conclusiones
-    \begin{enumerate}
-        \item Cumplimiento de objetivos.
-        \item Fortalezas del sistema construido.
-        \item Limitaciones actuales y posibles mejoras.
-        \item Aprendizajes sobre ontolog\'ias, reglas y Sistemas Basados en el Conocimiento.
-    \end{enumerate}
+\appendix
+\section{Salidas literales completas de los juegos de prueba}
+\subsection{Caso familia}
+\pendiente
+\subsection{Caso estudiante}
+\pendiente
+\subsection{Caso pareja}
+\pendiente
+\subsection{Caso amigos}
+\pendiente
+\subsection{Caso naturaleza}
+\pendiente
+\subsection{Caso sin soluci\'on}
+\pendiente
 
-    \item Bibliograf\'ia y fuentes
-    \begin{enumerate}
-        \item Material de la asignatura y enunciado.
-        \item Fuentes del dominio de viajes utilizadas.
-        \item Herramientas y recursos de implementaci\'on.
-    \end{enumerate}
-\end{enumerate}
+\section{Documentaci\'on de la ontolog\'ia generada con Prot\'eg\'e}
+\subsection{Grafo de clases y relaciones}
+\pendiente
+\subsection{Fichas de clases, propiedades e instancias}
+\pendiente
 
-\vspace{0.5cm}
-\textbf{Anexos previstos}
-\begin{enumerate}[label=\Alph*.,leftmargin=1.1cm,itemsep=0.35em,topsep=0.25em]
-    \item Salidas literales completas de los juegos de prueba.
-    \begin{enumerate}[label=\Alph{enumi}.\arabic*.,leftmargin=1.25cm,itemsep=0.2em,topsep=0.15em]
-        \item Caso familia.
-        \item Caso estudiante.
-        \item Caso pareja.
-        \item Caso amigos.
-        \item Caso naturaleza.
-        \item Caso sin soluci\'on.
-    \end{enumerate}
-    \item Documentaci\'on de la ontolog\'ia generada con Prot\'eg\'e.
-    \begin{enumerate}[label=\Alph{enumi}.\arabic*.,leftmargin=1.25cm,itemsep=0.2em,topsep=0.15em]
-        \item Grafo de clases y relaciones.
-        \item Fichas de clases, propiedades e instancias.
-    \end{enumerate}
-    \item Evidencias de conceptualizaci\'on con modelo de lenguaje.
-    \begin{enumerate}[label=\Alph{enumi}.\arabic*.,leftmargin=1.25cm,itemsep=0.2em,topsep=0.15em]
-        \item Prompt de contexto.
-        \item Preguntas relevantes.
-        \item Fragmentos de respuestas utilizados.
-    \end{enumerate}
-    \item Manual breve de ejecuci\'on y estructura de la entrega.
-\end{enumerate}
+\section{Evidencias de conceptualizaci\'on con modelo de lenguaje}
+\subsection{Prompt de contexto}
+\pendiente
+\subsection{Preguntas relevantes}
+\pendiente
+\subsection{Fragmentos de respuestas utilizados}
+\pendiente
+
+\section{Manual breve de ejecuci\'on y estructura de la entrega}
+\pendiente
 
 \end{document}
