@@ -14,16 +14,26 @@
 ;; ==============================================================================
 ;; 1. ONTOLOGIA
 ;; ==============================================================================
+;; En esta primera parte definimos los tipos de hechos que usa el sistema.
+;; Seria el equivalente en CLIPS a pasar la ontologia a una representacion
+;; ejecutable: usuario, ciudades, alojamientos, actividades, conexiones y planes.
 
+;; Fase controla en que punto del razonamiento estamos. Asi evitamos que CLIPS
+;; mezcle preguntas, deducciones, generacion de planes y salida final.
 (deftemplate Fase
    (slot nombre
       (allowed-values bienvenida preguntas deduccion generacion seleccion salida fin)
       (default bienvenida)))
 
+;; Guardamos algunas decisiones deducidas por reglas para poder justificar que
+;; el sistema no solo copia respuestas del usuario, sino que tambien razona.
 (deftemplate DecisionExperta
    (slot tipo)
    (slot descripcion (type STRING)))
 
+;; Datos del usuario y del viaje que quiere hacer. Algunos slots se preguntan
+;; directamente y otros se completan despues, como el nivel de presupuesto o la
+;; calidad minima en formato numerico.
 (deftemplate Usuario
    (slot id (type SYMBOL) (default u1))
    (slot edad (type INTEGER) (default -1))
@@ -73,6 +83,8 @@
       (allowed-values tranquilo medio intenso desconocido)
       (default desconocido)))
 
+;; Cada ciudad tiene datos turisticos y de coste que luego se usan para filtrar
+;; y puntuar planes: etiquetas, popularidad, seguridad, coste diario, etc.
 (deftemplate Ciudad
    (slot id (type SYMBOL))
    (slot idx (type INTEGER))
@@ -94,6 +106,8 @@
    (slot puntuacion_base (type INTEGER) (default 40))
    (multislot etiquetas (type SYMBOL)))
 
+;; Alojamientos disponibles por ciudad. La calidad y el precio por noche son
+;; importantes para calcular el precio total y respetar la calidad minima.
 (deftemplate Alojamiento
    (slot id (type SYMBOL))
    (slot ciudad (type SYMBOL))
@@ -106,6 +120,8 @@
       (allowed-values si no)
       (default si)))
 
+;; Actividades concretas que existen en cada ciudad. No se imprimen todas
+;; directamente, pero sirven como base para crear guias de visita coherentes.
 (deftemplate Actividad
    (slot id (type SYMBOL))
    (slot ciudad (type SYMBOL))
@@ -130,6 +146,8 @@
    (slot visitas (type STRING))
    (slot coste_total (type INTEGER)))
 
+;; Conexion representa cada tramo posible de transporte. Incluye tanto salidas
+;; desde el origen como conexiones entre ciudades.
 (deftemplate Conexion
    (slot origen (type SYMBOL))
    (slot destino (type SYMBOL))
@@ -140,6 +158,8 @@
    (slot coste (type INTEGER))
    (slot horas (type INTEGER)))
 
+;; Un PlanCandidato ya es una recomendacion casi completa: ciudades, dias,
+;; alojamientos, transportes, visitas, precio, puntuacion y explicacion.
 (deftemplate PlanCandidato
    (slot id)
    (slot uid)
@@ -171,6 +191,8 @@
    (slot visitas3 (type STRING) (default ""))
    (slot preferencias (type STRING)))
 
+;; PlanElegido solo apunta a los candidatos seleccionados para imprimirlos al
+;; final. Separarlo permite generar muchos planes y mostrar solo los mejores.
 (deftemplate PlanElegido
    (slot orden (type INTEGER))
    (slot id))
@@ -178,10 +200,17 @@
 ;; ==============================================================================
 ;; 2. BASE DE CONOCIMIENTO
 ;; ==============================================================================
+;; Aqui estan los datos con los que trabaja el sistema. Los hemos dejado como
+;; hechos iniciales para que CLIPS pueda combinarlos libremente al generar
+;; itinerarios: destinos, alojamientos, guias de visita y transportes.
 
+;; Hecho inicial minimo para que el sistema empiece siempre por la bienvenida.
 (deffacts SistemaInicial
    (Fase (nombre bienvenida)))
 
+;; Catalogo de destinos. Las etiquetas son la parte mas importante para el
+;; razonamiento, porque permiten saber si una ciudad encaja con descanso,
+;; cultura, diversion, naturaleza, viaje romantico, viaje familiar, etc.
 (deffacts CiudadesDisponibles
    (Ciudad (id paris) (idx 1) (nombre "Paris") (pais "Francia") (continente europa) (zona europa-oeste)
       (coste_diario 72) (seguridad alta) (apto_ninos si) (popularidad conocida) (puntuacion_base 88)
@@ -232,6 +261,8 @@
       (coste_diario 51) (seguridad media) (apto_ninos si) (popularidad media) (puntuacion_base 78)
       (etiquetas descanso romantico naturaleza playa)))
 
+;; Catalogo de alojamientos. Hay varias calidades y precios para que el sistema
+;; pueda respetar la calidad minima o buscar opciones mas economicas.
 (deffacts AlojamientosDisponibles
    (Alojamiento (id par_hostal) (ciudad paris) (nombre "Hostal Montmartre") (categoria hostal) (calidad 1) (precio_noche 46) (apto_ninos no))
    (Alojamiento (id par_hotel) (ciudad paris) (nombre "Hotel Seine 3*") (categoria hotel-estandar) (calidad 3) (precio_noche 115) (apto_ninos si))
@@ -268,6 +299,8 @@
    (Alojamiento (id bal_resort) (ciudad bali) (nombre "Resort Ubud") (categoria resort) (calidad 4) (precio_noche 118) (apto_ninos si))
    (Alojamiento (id bal_hotel) (ciudad bali) (nombre "Hotel Sanur 3*") (categoria hotel-estandar) (calidad 3) (precio_noche 74) (apto_ninos si)))
 
+;; Actividades base por ciudad. Estan separadas de las guias para mantener el
+;; conocimiento del dominio mas claro.
 (deffacts ActividadesDisponibles
    (Actividad (id act_par_louvre) (ciudad paris) (nombre "Louvre") (tipo museo) (horas 4) (coste 22) (prioridad 1) (apto_ninos si))
    (Actividad (id act_par_eiffel) (ciudad paris) (nombre "Torre Eiffel") (tipo monumento) (horas 3) (coste 29) (prioridad 2) (apto_ninos si))
@@ -302,6 +335,8 @@
    (Actividad (id act_bal_ubud) (ciudad bali) (nombre "Templos de Ubud") (tipo monumento) (horas 4) (coste 10) (prioridad 1) (apto_ninos si))
    (Actividad (id act_bal_arroz) (ciudad bali) (nombre "Terrazas de arroz de Tegallalang") (tipo naturaleza) (horas 3) (coste 5) (prioridad 2) (apto_ninos si)))
 
+;; Guias que empaquetan visitas segun el motivo del viaje. Asi la salida final
+;; no muestra visitas genericas, sino planes con sentido para cada perfil.
 (deffacts GuiasDeVisita
    (GuiaVisitas (ciudad paris) (motivo cultural) (dias_min 2) (visitas "Louvre, Torre Eiffel, paseo por el Sena") (coste_total 51))
    (GuiaVisitas (ciudad paris) (motivo romantico) (dias_min 2) (visitas "Torre Eiffel, Montmartre, paseo nocturno por el Sena") (coste_total 40))
@@ -340,6 +375,8 @@
    (GuiaVisitas (ciudad bali) (motivo romantico) (dias_min 2) (visitas "Templos de Ubud, arrozales, cena en Jimbaran") (coste_total 35))
    (GuiaVisitas (ciudad bali) (motivo naturaleza) (dias_min 2) (visitas "Arrozales, cascadas de Ubud, templo Tirta Empul") (coste_total 18)))
 
+;; Conexiones de transporte. Incluyen ida/vuelta al origen y tramos entre
+;; ciudades. El medio de transporte sirve para restricciones como evitar avion.
 (deffacts ConexionesDisponibles
    ;; Origen asumido: Barcelona / area de salida del usuario.
    (Conexion (origen origen) (destino paris) (medio tren) (ambito europeo) (coste 95) (horas 7))
@@ -402,7 +439,11 @@
 ;; ==============================================================================
 ;; 3. FUNCIONES AUXILIARES
 ;; ==============================================================================
+;; Estas funciones no deciden por si solas la recomendacion. Sirven para no
+;; repetir calculos dentro de las reglas: validar respuestas, transformar
+;; calidades, comprobar compatibilidades, calcular bonos y comparar rutas.
 
+;; Pregunta simbolica con opciones cerradas.
 (deffunction ask-question (?question $?allowed-values)
    (printout t ?question crlf)
    (bind ?answer (read))
@@ -416,6 +457,7 @@
          (bind ?answer (lowcase ?answer))))
    (return ?answer))
 
+;; Pregunta numerica con rango valido.
 (deffunction ask-number (?question ?min ?max)
    (printout t ?question crlf)
    (bind ?answer (read))
@@ -425,6 +467,7 @@
       (bind ?answer (read)))
    (return ?answer))
 
+;; Convertimos la calidad textual en numero para poder compararla facilmente.
 (deffunction calidad-a-num (?calidad)
    (if (eq ?calidad hostal) then (return 1))
    (if (eq ?calidad economico) then (return 2))
@@ -433,12 +476,14 @@
    (if (eq ?calidad lujo) then (return 5))
    (return 3))
 
+;; Nivel orientativo de presupuesto, usado despues por algunas deducciones.
 (deffunction presupuesto-a-nivel (?euros)
    (if (< ?euros 900) then (return economico))
    (if (< ?euros 1600) then (return ajustado))
    (if (< ?euros 2600) then (return holgado))
    (return premium))
 
+;; Comprueba si las etiquetas de una ciudad encajan con el motivo del viaje.
 (deffunction motivo-ciudad-compatible (?motivo $?tags)
    (if (or (eq ?motivo desconocido) (eq ?motivo mixto)) then (return TRUE))
    (if (member$ ?motivo $?tags) then (return TRUE))
@@ -447,6 +492,7 @@
    (if (and (eq ?motivo romantico) (member$ iconico $?tags)) then (return TRUE))
    (return FALSE))
 
+;; Permite usar guias directas del motivo o guias mixtas si toca.
 (deffunction guia-compatible (?motivo ?guia)
    (if (eq ?motivo mixto) then (return TRUE))
    (if (or (eq ?motivo ?guia) (eq ?guia mixto)) then (return TRUE))
@@ -454,11 +500,14 @@
    (if (and (eq ?motivo naturaleza) (eq ?guia descanso)) then (return TRUE))
    (return FALSE))
 
+;; Controla la calidad minima. Si el usuario acepta sacrificar calidad,
+;; permitimos bajar un nivel para no descartar planes razonables.
 (deffunction calidad-compatible (?calidad ?minima ?sacrificar)
    (if (>= ?calidad ?minima) then (return TRUE))
    (if (and (eq ?sacrificar si) (>= ?calidad (- ?minima 1))) then (return TRUE))
    (return FALSE))
 
+;; Compatibilidad de transportes para rutas de dos ciudades.
 (deffunction transporte-compatible-2 (?dias ?evita-avion ?m0 ?m12 ?mr ?a0 ?a12 ?ar)
    (if (and (eq ?evita-avion si)
             (or (eq ?m0 avion) (eq ?m12 avion) (eq ?mr avion))) then
@@ -468,6 +517,7 @@
       (return FALSE))
    (return TRUE))
 
+;; Compatibilidad de transportes para rutas de tres ciudades.
 (deffunction transporte-compatible-3 (?dias ?evita-avion ?m0 ?m12 ?m23 ?mr ?a0 ?a12 ?a23 ?ar)
    (if (and (eq ?evita-avion si)
             (or (eq ?m0 avion) (eq ?m12 avion) (eq ?m23 avion) (eq ?mr avion))) then
@@ -480,6 +530,7 @@
       (return FALSE))
    (return TRUE))
 
+;; A partir de aqui calculamos preferencias. Son bonos, no restricciones duras.
 (deffunction bonus-tren-2 (?pref ?m0 ?m12 ?mr)
    (if (not (eq ?pref si)) then (return 0))
    (bind ?b 0)
@@ -497,6 +548,7 @@
    (if (eq ?mr tren) then (bind ?b (+ ?b 5)))
    (return ?b))
 
+;; Bonos para ciudades menos masificadas, si el usuario lo pide.
 (deffunction bonus-menos-conocidos-2 (?pref ?pop1 ?pop2)
    (if (not (eq ?pref si)) then (return 0))
    (bind ?b 0)
@@ -516,6 +568,7 @@
             (bind ?b (+ ?b 5)))))
    (return ?b))
 
+;; Pequeno premio si el alojamiento supera la calidad minima.
 (deffunction bonus-calidad (?minima ?c1 ?c2 ?c3)
    (bind ?b 0)
    (if (> ?c1 ?minima) then (bind ?b (+ ?b 4)))
@@ -523,11 +576,14 @@
    (if (> ?c3 ?minima) then (bind ?b (+ ?b 4)))
    (return ?b))
 
+;; Premio por dejar margen de presupuesto. No sirve para aceptar planes caros,
+;; solo para ordenar mejor los que ya son validos.
 (deffunction bonus-precio (?precio ?presupuesto)
    (if (> ?presupuesto ?precio) then
       (return (div (- ?presupuesto ?precio) 60)))
    (return 0))
 
+;; Construyen el texto de preferencias cumplidas que se imprime al usuario.
 (deffunction preferencias-texto-2 (?pref-tren ?m0 ?m12 ?mr ?pref-oculto ?pop1 ?pop2 ?minq ?q1 ?q2)
    (bind ?txt "")
    (if (and (eq ?pref-tren si) (or (eq ?m0 tren) (eq ?m12 tren) (eq ?mr tren))) then
@@ -556,6 +612,7 @@
       (bind ?txt "cumple restricciones obligatorias; sin preferencias opcionales destacadas."))
    (return ?txt))
 
+;; Funciones para comparar rutas y evitar entregar dos recomendaciones iguales.
 (deffunction contiene-ciudad (?c ?a ?b ?d)
    (if (or (eq ?c ?a) (eq ?c ?b) (eq ?c ?d)) then (return TRUE))
    (return FALSE))
@@ -573,7 +630,11 @@
 ;; ==============================================================================
 ;; 4. ADQUISICION DE DATOS
 ;; ==============================================================================
+;; Esta fase pregunta los datos necesarios para construir el perfil del usuario.
+;; En modo normal se hace por teclado. En los juegos de prueba se salta esta
+;; entrevista porque ya insertamos un Usuario completo antes de ejecutar run.
 
+;; Arranque normal: crea un usuario vacio y empieza la entrevista.
 (defrule iniciar-entrevista
    ?f <- (Fase (nombre bienvenida))
    (not (Usuario))
@@ -584,6 +645,7 @@
    (assert (Usuario (id u1)))
    (modify ?f (nombre preguntas)))
 
+;; Arranque de pruebas: si ya existe un usuario completo, no preguntamos nada.
 (defrule iniciar-con-usuario-de-prueba
    ?f <- (Fase (nombre bienvenida))
    (Usuario (edad ?e&:(<> ?e -1))
@@ -605,6 +667,7 @@
    (modify ?f (nombre deduccion))
    (printout t crlf "-> [MODO PRUEBA] Usuario precargado. Iniciando deducciones..." crlf))
 
+;; Las siguientes reglas preguntan solo el dato que falta en cada momento.
 (defrule preguntar-edad
    (Fase (nombre preguntas))
    ?u <- (Usuario (edad -1))
@@ -699,6 +762,7 @@
    =>
    (modify ?u (ritmo (ask-question "Ritmo del viaje? (tranquilo/medio/intenso)" tranquilo medio intenso))))
 
+;; Cuando ya tenemos todas las respuestas, pasamos a deduccion.
 (defrule fin-preguntas
    ?f <- (Fase (nombre preguntas))
    (Usuario (edad ?e&:(<> ?e -1))
@@ -723,7 +787,11 @@
 ;; ==============================================================================
 ;; 5. DEDUCCIONES EXPERTAS
 ;; ==============================================================================
+;; En esta fase se completan datos derivados del usuario. Por ejemplo, se
+;; traduce el presupuesto a un nivel, la calidad a numero y algunos eventos se
+;; interpretan como motivos de viaje.
 
+;; Normalizamos presupuesto y calidad para compararlos mejor en las reglas.
 (defrule calcular-nivel-presupuesto
    (Fase (nombre deduccion))
    ?u <- (Usuario (presupuesto_euros ?p&:(> ?p 0)) (presupuesto_nivel desconocido))
@@ -736,6 +804,8 @@
    =>
    (modify ?u (calidad_min_num (calidad-a-num ?c))))
 
+;; Deducciones de perfil: si el usuario no ha indicado motivo claro, usamos
+;; reglas de sentido comun del dominio.
 (defrule deducir-boda-romantico
    (Fase (nombre deduccion))
    ?u <- (Usuario (evento boda) (motivo ?m&:(or (eq ?m desconocido) (eq ?m mixto))))
@@ -792,6 +862,8 @@
    (modify ?u (motivo cultural))
    (assert (DecisionExperta (tipo perfil) (descripcion "Sin motivo declarado: se usa cultural como objetivo por defecto."))))
 
+;; Ajustes de restricciones. Sirven para que el sistema no proponga rutas poco
+;; realistas, por ejemplo demasiadas ciudades para pocos dias.
 (defrule ajustar-viaje-corto
    (Fase (nombre deduccion))
    ?u <- (Usuario (duracion_max_dias ?d&:(<= ?d 5)) (ciudades_max ?max&:(> ?max 2)))
@@ -806,6 +878,7 @@
    (modify ?u (calidad_min economico) (calidad_min_num 2))
    (assert (DecisionExperta (tipo restriccion) (descripcion "Presupuesto economico con sacrificio de calidad: se permite alojamiento economico."))))
 
+;; Termina la fase de deduccion y abre la generacion de candidatos.
 (defrule fin-deduccion
    (declare (salience -10))
    ?f <- (Fase (nombre deduccion))
@@ -819,7 +892,12 @@
 ;; ==============================================================================
 ;; 6. GENERACION DE PLANES CANDIDATOS
 ;; ==============================================================================
+;; Aqui CLIPS combina ciudades, alojamientos, guias y transportes. Solo se
+;; crea un PlanCandidato si cumple las restricciones duras: dias, presupuesto,
+;; calidad, compatibilidad familiar, motivo y transporte.
 
+;; Genera rutas de dos ciudades. Es la opcion mas flexible para presupuestos o
+;; duraciones mas ajustadas.
 (defrule generar-plan-dos-ciudades
    (declare (salience 30))
    (Fase (nombre generacion))
@@ -896,6 +974,8 @@
             (visitas1 ?vis1) (visitas2 ?vis2)
             (preferencias (preferencias-texto-2 ?pref-tren ?m0 ?m12 ?mr ?pref-oculto ?pop1 ?pop2 ?minq ?q1 ?q2)))))))
 
+;; Genera rutas de tres ciudades. Tienen mas contenido, pero tambien necesitan
+;; encajar con presupuesto, duracion y transportes.
 (defrule generar-plan-tres-ciudades
    (declare (salience 25))
    (Fase (nombre generacion))
@@ -985,6 +1065,7 @@
             (visitas1 ?vis1) (visitas2 ?vis2) (visitas3 ?vis3)
             (preferencias (preferencias-texto-3 ?pref-tren ?m0 ?m12 ?m23 ?mr ?pref-oculto ?pop1 ?pop2 ?pop3 ?minq ?q1 ?q2 ?q3)))))))
 
+;; Cuando ya no quedan candidatos por generar, pasamos a escoger los mejores.
 (defrule pasar-a-seleccion
    (declare (salience -20))
    ?f <- (Fase (nombre generacion))
@@ -995,7 +1076,11 @@
 ;; ==============================================================================
 ;; 7. SELECCION DE DOS PLANES DIFERENTES
 ;; ==============================================================================
+;; En esta fase no generamos planes nuevos. Ordenamos lo que ya existe por
+;; puntuacion y escogemos dos alternativas. Primero intentamos que no compartan
+;; ciudades; si no se puede, aceptamos una ruta distinta para no inventar datos.
 
+;; Primer plan: el candidato con mayor puntuacion.
 (defrule seleccionar-primer-plan
    (declare (salience 20))
    (Fase (nombre seleccion))
@@ -1005,6 +1090,7 @@
    =>
    (assert (PlanElegido (orden 1) (id ?id))))
 
+;; Segundo plan ideal: una ruta sin ninguna ciudad repetida respecto al primero.
 (defrule seleccionar-segundo-plan-sin-solape
    (declare (salience 15))
    (Fase (nombre seleccion))
@@ -1022,6 +1108,8 @@
    =>
    (assert (PlanElegido (orden 2) (id ?id2))))
 
+;; Si no existe una ruta totalmente separada, buscamos al menos una alternativa
+;; que no sea exactamente el mismo viaje.
 (defrule seleccionar-segundo-plan-con-ruta-distinta-si-no-hay-sin-solape
    (declare (salience 5))
    (Fase (nombre seleccion))
@@ -1044,6 +1132,7 @@
    =>
    (assert (PlanElegido (orden 2) (id ?id2))))
 
+;; Cuando ya hay plan elegido, o no hay candidatos, pasamos a la salida.
 (defrule pasar-a-salida
    (declare (salience -20))
    ?f <- (Fase (nombre seleccion))
@@ -1053,7 +1142,11 @@
 ;; ==============================================================================
 ;; 8. SALIDA EXPLICADA
 ;; ==============================================================================
+;; La salida intenta ser entendible para el usuario: no imprime hechos internos,
+;; sino precio, duracion, ciudades, visitas, alojamientos, transportes y
+;; preferencias cumplidas. Tambien contempla el caso sin solucion.
 
+;; Si no se ha podido crear ningun candidato valido, se informa claramente.
 (defrule mostrar-sin-solucion
    (declare (salience 30))
    (Fase (nombre salida))
@@ -1065,6 +1158,7 @@
    (printout t "Las restricciones introducidas no pueden satisfacerse con la base de conocimiento actual." crlf)
    (printout t "Sugerencias: aumentar presupuesto/dias, permitir avion o bajar la calidad minima." crlf))
 
+;; Imprime cada plan seleccionado con todos los detalles del itinerario.
 (defrule mostrar-plan-elegido
    (declare (salience 20))
    (Fase (nombre salida))
@@ -1113,6 +1207,7 @@
       (printout t " - " ?nom3 " -> Origen: " ?tr crlf))
    (printout t "Preferencias cumplidas: " ?prefs crlf))
 
+;; Aviso por si la base de conocimiento solo permite una recomendacion.
 (defrule avisar-si-falta-segundo-plan
    (declare (salience 10))
    (Fase (nombre salida))
@@ -1121,6 +1216,7 @@
    =>
    (printout t crlf "AVISO: solo se ha encontrado una alternativa factible. Para cumplir el enunciado conviene relajar alguna restriccion." crlf))
 
+;; Cierre unico de la ejecucion.
 (defrule cerrar-sistema
    (declare (salience -30))
    ?f <- (Fase (nombre salida))
@@ -1134,7 +1230,11 @@
 ;;   (load "viajes.clp")
 ;;   (caso-familia-alto)
 ;; ==============================================================================
+;; Estos casos no son interactivos, pero actuan igual para el motor de
+;; inferencia: cada funcion hace reset, inserta un Usuario completo y ejecuta
+;; run. Los usamos para repetir pruebas sin tener que contestar la entrevista.
 
+;; Familia con ninos, presupuesto alto y calidad superior.
 (deffunction caso-familia-alto ()
    (reset)
    (assert (Usuario
@@ -1157,6 +1257,7 @@
       (ritmo tranquilo)))
    (run))
 
+;; Usuario joven que quiere cultura, evita avion y prefiere tren.
 (deffunction caso-estudiante-tren ()
    (reset)
    (assert (Usuario
@@ -1179,6 +1280,7 @@
       (ritmo medio)))
    (run))
 
+;; Pareja con aniversario. Sirve para probar la deduccion de viaje romantico.
 (deffunction caso-pareja-romantica ()
    (reset)
    (assert (Usuario
@@ -1201,6 +1303,7 @@
       (ritmo tranquilo)))
    (run))
 
+;; Grupo de amigos en fin de curso. Sirve para probar diversion y rutas de ocio.
 (deffunction caso-amigos-diversion ()
    (reset)
    (assert (Usuario
@@ -1223,6 +1326,7 @@
       (ritmo intenso)))
    (run))
 
+;; Caso con naturaleza y preferencia por lugares menos conocidos.
 (deffunction caso-naturaleza-menos-conocido ()
    (reset)
    (assert (Usuario
@@ -1245,6 +1349,7 @@
       (ritmo medio)))
    (run))
 
+;; Caso imposible: restricciones demasiado fuertes para la base de conocimiento.
 (deffunction caso-imposible-sin-avion-asia ()
    (reset)
    (assert (Usuario

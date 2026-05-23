@@ -1,0 +1,336 @@
+<?xml version="1.0"?>
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://example.org/ia-sbc-viajes#OntologiaViajesSBC"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     ontologyIRI="http://example.org/ia-sbc-viajes#OntologiaViajesSBC">
+    <Prefix name="" IRI="http://example.org/ia-sbc-viajes#"/>
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="xml" IRI="http://www.w3.org/XML/1998/namespace"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <Literal>Ontologia de suport per a la practica SBC de recomanacio de viatges. Es pot obrir amb Protege i documenta els conceptes que tambe apareixen als deftemplates de viajes.clp.</Literal>
+    </Annotation>
+    <Declaration>
+        <Class abbreviatedIRI=":Actividad"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI=":Alojamiento"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI=":Ciudad"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI=":Entidad"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI=":Etapa"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI=":PaqueteViaje"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI=":Preferencia"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI=":Restriccion"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI=":Servicio"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI=":Transporte"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI=":Usuario"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI=":cumplePreferencia"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI=":incluyeActividad"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI=":incluyeEtapa"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI=":respetaRestriccion"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI=":usaAlojamiento"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI=":usaTransporte"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI=":viajaA"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI=":calidad"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI=":costeDiario"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI=":costeTransporte"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI=":duracionMaxDias"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI=":edad"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI=":horasTransporte"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI=":nombre"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI=":precioNoche"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI=":precioTotal"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI=":presupuestoEuros"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI=":puntuacion"/>
+    </Declaration>
+    <SubClassOf>
+        <Class abbreviatedIRI=":Actividad"/>
+        <Class abbreviatedIRI=":Servicio"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI=":Alojamiento"/>
+        <Class abbreviatedIRI=":Servicio"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI=":Ciudad"/>
+        <Class abbreviatedIRI=":Entidad"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI=":Etapa"/>
+        <Class abbreviatedIRI=":Entidad"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI=":PaqueteViaje"/>
+        <Class abbreviatedIRI=":Entidad"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI=":Preferencia"/>
+        <Class abbreviatedIRI=":Entidad"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI=":Restriccion"/>
+        <Class abbreviatedIRI=":Entidad"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI=":Servicio"/>
+        <Class abbreviatedIRI=":Entidad"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI=":Transporte"/>
+        <Class abbreviatedIRI=":Servicio"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI=":Usuario"/>
+        <Class abbreviatedIRI=":Entidad"/>
+    </SubClassOf>
+    <ObjectPropertyDomain>
+        <ObjectProperty abbreviatedIRI=":cumplePreferencia"/>
+        <Class abbreviatedIRI=":PaqueteViaje"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty abbreviatedIRI=":incluyeActividad"/>
+        <Class abbreviatedIRI=":Etapa"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty abbreviatedIRI=":incluyeEtapa"/>
+        <Class abbreviatedIRI=":PaqueteViaje"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty abbreviatedIRI=":respetaRestriccion"/>
+        <Class abbreviatedIRI=":PaqueteViaje"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty abbreviatedIRI=":usaAlojamiento"/>
+        <Class abbreviatedIRI=":Etapa"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty abbreviatedIRI=":usaTransporte"/>
+        <Class abbreviatedIRI=":PaqueteViaje"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty abbreviatedIRI=":viajaA"/>
+        <Class abbreviatedIRI=":PaqueteViaje"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty abbreviatedIRI=":cumplePreferencia"/>
+        <Class abbreviatedIRI=":Preferencia"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty abbreviatedIRI=":incluyeActividad"/>
+        <Class abbreviatedIRI=":Actividad"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty abbreviatedIRI=":incluyeEtapa"/>
+        <Class abbreviatedIRI=":Etapa"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty abbreviatedIRI=":respetaRestriccion"/>
+        <Class abbreviatedIRI=":Restriccion"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty abbreviatedIRI=":usaAlojamiento"/>
+        <Class abbreviatedIRI=":Alojamiento"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty abbreviatedIRI=":usaTransporte"/>
+        <Class abbreviatedIRI=":Transporte"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty abbreviatedIRI=":viajaA"/>
+        <Class abbreviatedIRI=":Ciudad"/>
+    </ObjectPropertyRange>
+    <DataPropertyDomain>
+        <DataProperty abbreviatedIRI=":calidad"/>
+        <Class abbreviatedIRI=":Alojamiento"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty abbreviatedIRI=":costeDiario"/>
+        <Class abbreviatedIRI=":Ciudad"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty abbreviatedIRI=":costeTransporte"/>
+        <Class abbreviatedIRI=":Transporte"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty abbreviatedIRI=":duracionMaxDias"/>
+        <Class abbreviatedIRI=":Usuario"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty abbreviatedIRI=":edad"/>
+        <Class abbreviatedIRI=":Usuario"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty abbreviatedIRI=":horasTransporte"/>
+        <Class abbreviatedIRI=":Transporte"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty abbreviatedIRI=":precioNoche"/>
+        <Class abbreviatedIRI=":Alojamiento"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty abbreviatedIRI=":precioTotal"/>
+        <Class abbreviatedIRI=":PaqueteViaje"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty abbreviatedIRI=":presupuestoEuros"/>
+        <Class abbreviatedIRI=":Usuario"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty abbreviatedIRI=":puntuacion"/>
+        <Class abbreviatedIRI=":PaqueteViaje"/>
+    </DataPropertyDomain>
+    <DataPropertyRange>
+        <DataProperty abbreviatedIRI=":calidad"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty abbreviatedIRI=":costeDiario"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty abbreviatedIRI=":costeTransporte"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty abbreviatedIRI=":duracionMaxDias"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty abbreviatedIRI=":edad"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty abbreviatedIRI=":horasTransporte"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty abbreviatedIRI=":nombre"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty abbreviatedIRI=":precioNoche"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty abbreviatedIRI=":precioTotal"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty abbreviatedIRI=":presupuestoEuros"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty abbreviatedIRI=":puntuacion"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
+    </DataPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>:Actividad</AbbreviatedIRI>
+        <Literal>Visita concreta d&apos;una ciutat: nom, tipus, durada, cost i prioritat.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>:Alojamiento</AbbreviatedIRI>
+        <Literal>Servei d&apos;estada associat a una ciutat, amb categoria, qualitat, preu i compatibilitat familiar.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>:Ciudad</AbbreviatedIRI>
+        <Literal>Destinacio candidata amb zona, continent, cost, seguretat, popularitat i etiquetes turistiques.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>:Etapa</AbbreviatedIRI>
+        <Literal>Part d&apos;un paquet: ciutat concreta, dies d&apos;estada, allotjament i visites.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>:PaqueteViaje</AbbreviatedIRI>
+        <Literal>Solucio recomanada: dues o tres ciutats, dies per ciutat, transport, allotjament, visites, preu i preferencies complertes.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>:Preferencia</AbbreviatedIRI>
+        <Literal>Criteri no obligatori que permet puntuar i comparar plans: tren, llocs menys coneguts, qualitat.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>:Restriccion</AbbreviatedIRI>
+        <Literal>Condicio obligatoria que un pla ha de complir: pressupost maxim, evitar avio, dies, qualitat minima.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>:Transporte</AbbreviatedIRI>
+        <Literal>Connexio entre origen/desti o entre ciutats: mitja, cost, hores i ambit.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>:Usuario</AbbreviatedIRI>
+        <Literal>Perfil del client: edat, grup, infants, pressupost, objectiu, restriccions i preferencies.</Literal>
+    </AnnotationAssertion>
+</Ontology>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->
+

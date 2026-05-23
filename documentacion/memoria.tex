@@ -7,6 +7,9 @@
 \usepackage{xcolor}
 \usepackage{titlesec}
 \usepackage[hidelinks]{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usepackage{listings}
 
 \definecolor{UPCBlue}{HTML}{123B66}
 \definecolor{UPCLightBlue}{HTML}{D9E8F5}
@@ -18,7 +21,19 @@
 \titleformat{\section}{\Large\bfseries\color{UPCBlue}}{\thesection}{0.7em}{}
 \titleformat{\subsection}{\large\bfseries\color{UPCBlue}}{\thesubsection}{0.7em}{}
 \titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{0.7em}{}
-\newcommand{\pendiente}{\par\textit{Contenido pendiente de redactar.}\par}
+\lstdefinestyle{salidaclip}{
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    breakatwhitespace=false,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    frame=single,
+    framerule=0.3pt,
+    rulecolor=\color{UPCBlue},
+    xleftmargin=0.5em,
+    xrightmargin=0.5em
+}
 
 \newcommand{\tituloPractica}{Sistema experto de\\[0.18em] recomendaci\'on de viajes}
 \newcommand{\subtituloPractica}{Pr\'actica de Sistemas Basados en el Conocimiento}
@@ -71,276 +86,1632 @@
 
 \section{Introducci\'on}
 \subsection{Contexto de la pr\'actica y motivaci\'on del sistema}
-\pendiente
-\subsection{Estructura de la memoria y metodolog\'ia seguida}
-\pendiente
+En esta pr\'actica hemos desarrollado un Sistema Basado en el Conocimiento
+orientado a recomendar viajes personalizados para la agencia ``Al fin del mundo
+y m\'as all\'a''. El problema no consiste solamente en escoger un destino bonito:
+un viaje completo depende del tipo de usuario, de sus restricciones y de varias
+decisiones que est\'an relacionadas entre s\'i, como el n\'umero de ciudades, los
+d\'ias de estancia, el alojamiento, los transportes entre etapas y las visitas
+que se proponen en cada ciudad.
+
+Por ejemplo, no tiene sentido tratar igual una escapada de aniversario, un
+viaje familiar con ni\~nos o un grupo de amigos que viaja por fin de curso. Dos
+usuarios pueden tener el mismo presupuesto y aun as\'i necesitar propuestas muy
+distintas. Adem\'as, algunas condiciones se tienen que cumplir de forma
+obligatoria, como no superar el presupuesto o evitar el avi\'on si el usuario lo
+pide, mientras que otras sirven para comparar alternativas, como priorizar el
+tren o preferir ciudades menos masificadas.
+
+Por este motivo hemos planteado el sistema como un SBC implementado en CLIPS.
+La idea es representar de forma expl\'icita el conocimiento del dominio y usar
+reglas para ir pasando de la informaci\'on que nos da el usuario a dos
+recomendaciones completas y justificadas. De esta manera no nos limitamos a
+mostrar una lista fija de viajes, sino que el sistema puede preguntar, deducir,
+filtrar combinaciones inviables y comparar las soluciones factibles.
+
 
 \section{Identificaci\'on del problema}
 \subsection{Descripci\'on del problema de recomendaci\'on de viajes}
-\pendiente
+El problema que queremos resolver es la personalizaci\'on de viajes de varias
+ciudades a partir de la informaci\'on de un cliente. El sistema tiene que
+obtener primero los datos que condicionan la recomendaci\'on: edad del viajero
+principal, tipo de grupo, si viajan ni\~nos, si existe un evento especial,
+objetivo del viaje, presupuesto, duraci\'on, n\'umero de ciudades, calidad
+m\'inima de alojamiento y preferencias sobre transporte o destinos menos
+conocidos.
+
+Con esos datos se debe construir una recomendaci\'on concreta. En nuestro caso,
+un plan no es solo una ciudad candidata: es un itinerario de dos o tres
+ciudades con los d\'ias repartidos entre ellas, los transportes necesarios para
+salir del origen, moverse entre etapas y volver, un alojamiento por ciudad,
+visitas recomendadas y un precio total estimado por persona.
+
+El problema tiene una parte de an\'alisis del usuario y una parte de
+construcci\'on de la soluci\'on. Primero hay que interpretar el perfil y completar
+algunas decisiones razonables cuando la entrada lo permite. Por ejemplo, una
+boda o un aniversario apuntan a un viaje rom\'antico, y un viaje corto no deber\'ia
+acabar en una ruta demasiado extensa. Despu\'es hay que construir planes que
+respeten las restricciones y escoger entre las alternativas posibles.
+
 \subsection{Alcance, supuestos y l\'imites del sistema}
-\pendiente
+Hemos acotado el alcance para poder razonar con suficiente detalle sobre los
+planes sin convertir la pr\'actica en un buscador de reservas real. El sistema
+trabaja con una base de conocimiento cerrada de ciudades, alojamientos,
+actividades, gu\'ias de visita y conexiones de transporte. A partir de esa base
+genera viajes de dos o tres ciudades y considera un origen gen\'erico para las
+conexiones de ida y vuelta.
+
+Los precios son estimaciones por persona y se usan para comparar y validar
+planes dentro del sistema. Para construirlos hemos tomado como referencia la
+informaci\'on consultada sobre destinos, alojamientos, visitas y conexiones,
+pero no pretendemos que la base de conocimiento reproduzca precios de mercado,
+disponibilidad hotelera o rutas comerciales actualizadas. En cambio, s\'i
+hemos intentado mantener criterios coherentes: los transportes lejanos son
+m\'as caros, la calidad del alojamiento influye en el precio y un viaje corto
+limita las combinaciones razonables.
+
+El sistema tampoco intenta resolver todos los detalles de la organizaci\'on real
+de un viaje. No gestiona fechas concretas, horarios, visados, meteorolog\'ia,
+reservas ni incidencias durante el recorrido. Su objetivo es producir
+recomendaciones explicables a partir del conocimiento que hemos representado,
+y detectar cuando las restricciones del usuario no dejan ninguna alternativa
+factible con la base disponible.
+
 \subsection{Viabilidad de construir un Sistema Basado en el Conocimiento}
-\pendiente
+Consideramos que el problema es adecuado para construir un SBC porque no basta
+con aplicar una f\'ormula sobre los datos del usuario. Para recomendar un viaje
+hay que combinar conocimiento del dominio con decisiones de experto: distinguir
+restricciones de preferencias, interpretar algunos perfiles, descartar
+combinaciones poco razonables y comparar rutas que ya son factibles.
+
+Adem\'as, el problema se puede describir mediante objetos y relaciones claras.
+Tenemos usuarios, ciudades, alojamientos, actividades, conexiones y planes.
+Sobre estos conceptos aparecen reglas bastante naturales: si se viaja con
+ni\~nos se deben evitar recursos no aptos, si se quiere evitar el avi\'on se
+descartan rutas que lo usan, si el presupuesto no cubre el precio calculado el
+plan no sirve, y si el usuario prefiere tren esa caracter\'istica puede mejorar
+la puntuaci\'on de una alternativa sin convertirla en obligatoria.
+
+Esta separaci\'on entre conocimiento representado y reglas de razonamiento nos
+permite justificar las recomendaciones y tambi\'en explicar por qu\'e puede no
+haber soluci\'on. Por eso un lenguaje de reglas como CLIPS encaja bien con el
+problema: el sistema puede ir acumulando hechos sobre el usuario y los planes,
+activar reglas cuando se cumplen sus condiciones y controlar el razonamiento
+por fases hasta llegar a la salida.
+
 \subsection{Fuentes de conocimiento utilizadas}
-\pendiente
+Para construir el sistema hemos usado varias fuentes de conocimiento. La
+primera ha sido el propio enunciado de la pr\'actica, que fija el problema que
+hay que resolver, los datos relevantes que se deben considerar y la diferencia
+entre restricciones obligatorias y preferencias que permiten comparar
+soluciones.
+
+Tambi\'en hemos usado el material de la asignatura sobre representaci\'on del
+conocimiento, ontolog\'ias y arquitectura de los SBC. Ese material nos ha
+servido para estructurar el dominio, construir la ontolog\'ia, separar la base de
+conocimiento del razonamiento y organizar la documentaci\'on siguiendo las
+fases de la ingenier\'ia del conocimiento.
+
+Para la parte concreta de viajes hemos consultado informaci\'on tur\'istica de
+cat\'alogos y bases de datos de agencias de viajes, alojamientos, actividades y
+transportes. A partir de esa informaci\'on hemos seleccionado destinos,
+alojamientos, visitas y conexiones que nos permitieran construir una base de
+conocimiento variada, y los hemos adaptado al nivel de detalle que necesita el
+sistema con precios estimados, niveles de calidad, popularidad y etiquetas
+tur\'isticas. El objetivo de esos datos no es sustituir a una agencia real,
+sino representar suficiente conocimiento del dominio para que las reglas
+produzcan itinerarios distintos y casos de prueba relevantes.
+
+Por \'ultimo, durante la conceptualizaci\'on hemos usado un modelo de lenguaje
+como experto simulado para contrastar criterios de recomendaci\'on. Esa
+conversaci\'on nos ha servido como apoyo para decidir qu\'e conocimiento del
+dominio era \'util convertir en reglas o preferencias. Documentaremos el prompt,
+las preguntas relevantes y el conocimiento que hemos aprovechado en el
+apartado espec\'ifico de conceptualizaci\'on.
+
 \subsection{Objetivos del sistema}
-\pendiente
+Los objetivos que nos hemos marcado para el sistema son los siguientes:
+\begin{itemize}
+    \item Obtener del usuario la informaci\'on necesaria para personalizar el
+    viaje y no basar la recomendaci\'on solo en el presupuesto o en un destino
+    aislado.
+    \item Deducir parte del perfil del viajero y aplicar conocimiento de sentido
+    com\'un cuando las respuestas permiten completar la interpretaci\'on del caso.
+    \item Representar de forma expl\'icita las restricciones del viaje y
+    descartar cualquier plan que no las cumpla.
+    \item Tratar las preferencias como criterios de comparaci\'on para puntuar
+    soluciones factibles y escoger alternativas m\'as adecuadas.
+    \item Generar viajes multi-ciudad con alojamiento, transportes, visitas,
+    duraci\'on y precio total estimado.
+    \item Recomendar dos planes diferentes cuando la base de conocimiento lo
+    permita, e informar claramente si no existe ninguna recomendaci\'on factible.
+\end{itemize}
+
 \subsection{Resultados esperados y requisitos de la recomendaci\'on}
-\pendiente
+Al final de la ejecuci\'on esperamos que el usuario reciba dos recomendaciones
+de viaje suficientemente concretas para entender qu\'e propone el sistema y por
+qu\'e. Cada plan debe indicar:
+\begin{itemize}
+    \item el precio total estimado por persona;
+    \item la duraci\'on total del viaje;
+    \item las ciudades visitadas y los d\'ias asignados a cada una;
+    \item las visitas recomendadas en cada ciudad;
+    \item el alojamiento escogido en cada etapa;
+    \item los transportes desde el origen, entre ciudades y de vuelta;
+    \item las preferencias del usuario que se han cumplido.
+\end{itemize}
+
+Las dos recomendaciones tienen que ser alternativas reales y no dos
+impresiones del mismo plan. Por eso se busca que visiten ciudades diferentes y
+se seleccionan sobre el conjunto de candidatos que ya cumplen presupuesto,
+duraci\'on, calidad m\'inima y restricciones de transporte. Si las condiciones
+del usuario son incompatibles con la base de conocimiento disponible, el
+resultado esperado pasa a ser un mensaje expl\'icito de no soluci\'on en lugar de
+forzar una recomendaci\'on incorrecta.
 
 \section{Conceptualizaci\'on}
 \subsection{Descripci\'on del dominio de viajes personalizados}
-\pendiente
+En la fase de conceptualizaci\'on hemos pasado del enunciado general de
+``recomendar viajes'' a una descripci\'on del dominio que el sistema pueda
+tratar. Para nosotros un viaje personalizado es una propuesta que relaciona
+dos partes: por un lado el cliente, con sus condiciones y sus gustos; por el
+otro los recursos tur\'isticos disponibles, que son destinos, alojamientos,
+visitas y transportes.
+
+La recomendaci\'on no se decide con un \'unico dato. Un presupuesto alto no
+convierte cualquier ruta en buena, igual que escoger un motivo cultural no
+anula la duraci\'on, el tipo de grupo o la calidad m\'inima de alojamiento. Por
+eso el dominio mezcla restricciones que se deben cumplir con criterios que
+permiten escoger la alternativa m\'as adecuada entre varias que ya son
+factibles.
+
+El resultado del dominio tampoco es un destino aislado. La soluci\'on que
+queremos construir es un itinerario de dos o tres ciudades con etapas
+ordenadas. Cada etapa necesita una ciudad, unos d\'ias de estancia, un
+alojamiento y unas visitas concretas; adem\'as el plan completo necesita los
+transportes de ida, entre ciudades y de vuelta, un precio estimado y una
+explicaci\'on breve de las preferencias que satisface.
+
+Con esta forma de ver el problema, el conocimiento que necesitamos no se
+limita a almacenar datos de turismo. Tambi\'en hace falta representar
+decisiones de sentido com\'un que usar\'ia una agencia al hablar con un cliente:
+qu\'e destinos encajan mejor con un objetivo rom\'antico o de descanso, qu\'e
+cambia cuando viajan ni\~nos, cu\'ando una ruta lejana deja de tener sentido
+para pocos d\'ias y c\'omo comparar dos viajes que cumplen las condiciones
+obligatorias.
+
 \subsection{Conceptos principales del dominio}
 \subsubsection{Usuario, perfil de viaje y grupo viajero}
-\pendiente
+El punto de partida es el usuario. No lo tratamos solo como la persona
+que ejecuta el programa, sino como el viajero o grupo para el que se prepara la
+recomendaci\'on. De \'el nos interesan la edad del viajero principal, la
+composici\'on del grupo, si viajan ni\~nos y si el viaje est\'a ligado a un evento
+especial como una boda, un aniversario o un fin de curso.
+
+Sobre el usuario tambi\'en aparecen las condiciones propias del viaje:
+presupuesto m\'aximo, duraci\'on disponible, n\'umero de ciudades que se quiere
+visitar, calidad m\'inima del alojamiento y decisiones sobre el transporte. A
+eso se a\~naden preferencias m\'as blandas, por ejemplo querer usar tren cuando
+sea razonable o preferir ciudades menos masificadas.
+
+El perfil de viaje es la lectura que hacemos de esa informaci\'on. El
+usuario puede indicar directamente su motivo principal, pero hay casos donde
+el sistema puede completar la interpretaci\'on: una boda o un aniversario
+apuntan a un viaje rom\'antico, un fin de curso a uno de diversi\'on y un grupo
+con ni\~nos obliga a pensar en destinos y alojamientos adecuados. Esta
+separaci\'on entre datos preguntados y perfil interpretado es importante porque
+es donde aparece parte del conocimiento experto.
+
 \subsubsection{Ciudades y caracter\'isticas tur\'isticas}
-\pendiente
+Las ciudades son los destinos que pueden formar parte de una ruta.
+Para recomendarlas no basta con conocer su nombre. Necesitamos saber su pa\'is,
+la zona o continente, un coste diario estimado, su nivel de seguridad, si son
+aptas para viajar con ni\~nos, su popularidad y un conjunto de etiquetas
+tur\'isticas.
+
+Las etiquetas resumen qu\'e puede aportar cada destino: cultural, rom\'antico,
+descanso, diversi\'on, naturaleza, playa, gastronom\'ia o un car\'acter m\'as
+ic\'onico. Gracias a ellas se puede razonar sobre la compatibilidad entre el
+objetivo del viaje y la ciudad sin convertir el sistema en una lista cerrada
+de respuestas prefijadas para cada caso.
+
 \subsubsection{Alojamientos y calidad de estancia}
-\pendiente
+Un alojamiento es un recurso asociado a una ciudad. En el dominio nos
+interesan su nombre, categor\'ia, calidad, precio por noche y compatibilidad con
+ni\~nos. Estos datos permiten cubrir dos necesidades diferentes: comprobar que
+se respeta la calidad m\'inima que exige el usuario y construir el precio total
+del plan con un coste de estancia concreto.
+
+La calidad del alojamiento se trata con cuidado porque puede actuar como
+restricci\'on o como margen de ajuste. Si el usuario pide una calidad m\'inima,
+el viaje no deber\'ia bajar de ella sin permiso. En cambio, cuando declara que
+acepta sacrificar calidad para ajustar presupuesto, se puede permitir una
+flexibilizaci\'on controlada en vez de inventar una soluci\'on que no existe.
+
 \subsubsection{Actividades, visitas y gu\'ias de visita}
-\pendiente
+Las actividades representan visitas concretas que se pueden hacer en
+una ciudad. Cada una tiene nombre, tipo, duraci\'on, coste, prioridad y
+compatibilidad familiar. Nos sirven para que la base de conocimiento no se
+quede en frases gen\'ericas del estilo ``hacer turismo por la ciudad''.
+
+Para la recomendaci\'on final usamos adem\'as gu\'ias de visita. Una
+gu\'ia agrupa visitas adecuadas para una ciudad y un motivo de viaje, indica el
+m\'inimo de d\'ias que necesita y aporta un coste total de esas visitas. De esta
+manera, la etapa de una ciudad ya lleva una propuesta concreta distinta si el
+usuario viaja por cultura, descanso, naturaleza, diversi\'on o romanticismo.
+
 \subsubsection{Conexiones, transportes y etapas del recorrido}
-\pendiente
+Las conexiones expresan qu\'e transportes est\'an disponibles entre el
+origen y una ciudad o entre dos ciudades de la ruta. De cada conexi\'on
+necesitamos el medio, el coste, la duraci\'on aproximada y el \'ambito del tramo.
+El \'ambito permite distinguir, por ejemplo, un salto intercontinental de un
+desplazamiento local o europeo.
+
+Una etapa es la parte del viaje que ocurre en una ciudad. Aunque en la
+implementaci\'on final la etapa queda embebida dentro del plan candidato, en la
+conceptualizaci\'on nos ayuda a ordenar la soluci\'on: una ruta est\'a formada por
+etapas y conexiones entre ellas.
+
 \subsubsection{Restricciones obligatorias y preferencias comparativas}
-\pendiente
+Una decisi\'on central de la conceptualizaci\'on ha sido separar
+restricciones de preferencias. Las restricciones son las
+condiciones que no queremos violar al generar una recomendaci\'on: no superar
+el presupuesto, respetar la duraci\'on disponible, aceptar solo el n\'umero de
+ciudades permitido, evitar el avi\'on cuando se pide, mantener la calidad
+m\'inima y exigir compatibilidad familiar cuando viajan ni\~nos.
+
+Las preferencias no tienen el mismo papel. Se usan para comparar soluciones
+que ya han pasado los filtros obligatorios. Por ejemplo, una ruta puede recibir
+mejor valoraci\'on si usa tren cuando el usuario lo prefiere, si incluye
+ciudades menos conocidas, si mejora la calidad m\'inima pedida o si deja margen
+de presupuesto. As\'i evitamos descartar un viaje v\'alido solo porque no cumple
+un gusto opcional.
+
 \subsubsection{Planes candidatos y planes recomendados}
-\pendiente
+Un plan candidato es una combinaci\'on que el sistema ha conseguido
+construir con ciudades, d\'ias, alojamientos, transportes, visitas, precio y
+puntuaci\'on. Solo llega a ser candidato cuando respeta las restricciones que
+se han comprobado durante la generaci\'on.
+
+Un plan recomendado es uno de los candidatos que se escoge al final.
+El sistema no debe quedarse con el primero que aparezca, sino comparar las
+alternativas disponibles y elegir dos rutas distintas siempre que la base de
+conocimiento lo permita. Esta diferencia entre candidato y recomendaci\'on nos
+permite separar la construcci\'on de soluciones de la elecci\'on final.
+
 \subsection{Conocimiento experto extra\'ido del dominio}
 \subsubsection{Reglas de sentido com\'un sobre perfiles de usuario}
-\pendiente
+Durante la conceptualizaci\'on hemos identificado reglas sencillas que no son
+datos tur\'isticos puros, sino decisiones que usar\'ia una persona que prepara
+viajes. Algunos ejemplos que hemos incorporado son:
+\begin{itemize}
+    \item Una boda o un aniversario se interpreta como una situaci\'on donde
+    tiene sentido priorizar un perfil rom\'antico.
+    \item Un fin de curso encaja mejor con un perfil de ocio y diversi\'on.
+    \item Si viajan ni\~nos, hay que dar importancia a destinos y alojamientos
+    aptos y evitar propuestas que dependan de recursos no familiares.
+    \item Si un usuario que viaja solo no declara un motivo claro, una ruta
+    cultural es un punto de partida razonable y explicable.
+\end{itemize}
+
+Estas reglas no sustituyen las respuestas del usuario cuando ya son claras.
+Sirven para completar informaci\'on poco concreta y para que el sistema pueda
+seguir razonando con un perfil de viaje definido.
+
 \subsubsection{Criterios de compatibilidad de destinos, alojamientos y transportes}
-\pendiente
+El siguiente bloque de conocimiento experto consiste en decidir qu\'e recursos
+pueden convivir dentro de una misma recomendaci\'on. En destinos se comprueba
+que el motivo del viaje encaje con las etiquetas de las ciudades. En
+alojamientos se comprueba la calidad solicitada y, cuando hay ni\~nos, que el
+recurso sea apto. En las visitas se escoge una gu\'ia coherente con la ciudad,
+el objetivo del viaje y los d\'ias asignados.
+
+Con los transportes aplicamos criterios parecidos. Si el usuario quiere evitar
+avi\'on, una ruta que lo necesita deja de ser compatible. Adem\'as, una ruta muy
+lejana no es buena candidata para una escapada demasiado corta: aunque exista
+una conexi\'on, el tiempo disponible cambia lo que es razonable recomendar.
+
 \subsubsection{Criterios para comparar soluciones factibles}
-\pendiente
+Una vez un plan cumple las condiciones obligatorias, todav\'ia puede ser mejor
+o peor que otro. Para compararlos hemos identificado varios criterios:
+\begin{itemize}
+    \item La adecuaci\'on base de las ciudades que forman la ruta.
+    \item El uso del tren cuando el usuario lo ha marcado como preferencia.
+    \item La presencia de ciudades menos conocidas o menos masificadas si se
+    han pedido.
+    \item La calidad extra del alojamiento por encima del m\'inimo solicitado.
+    \item El margen que queda respecto al presupuesto m\'aximo.
+\end{itemize}
+
+Este conocimiento se traduce despu\'es en una puntuaci\'on heur\'istica, pero en
+esta fase lo importante es la idea: primero se garantizan las restricciones y
+despu\'es se ordenan las alternativas usando preferencias.
+
 \subsubsection{Tratamiento de restricciones incompatibles y no soluci\'on}
-\pendiente
+Tambi\'en hemos considerado el caso en el que el cliente pide una combinaci\'on
+que la base de conocimiento no puede satisfacer. Por ejemplo, un presupuesto
+muy bajo junto con una calidad alta, pocos d\'ias y transportes muy limitados
+puede dejar el conjunto de candidatos vac\'io.
+
+En ese caso el comportamiento correcto no es relajar condiciones a escondidas
+ni imprimir un viaje que no cumple lo pedido. La conclusi\'on del razonamiento
+debe ser que no se ha encontrado una recomendaci\'on factible y conviene
+indicar qu\'e tipo de restricci\'on podr\'ia revisarse.
+
 \subsection{Conceptualizaci\'on apoyada por un modelo de lenguaje}
 \subsubsection{Contexto y prompt de elicitaci\'on de conocimiento}
-\pendiente
+Como apoyo a esta fase hemos usado un modelo de lenguaje en el papel de
+experto simulado en recomendaci\'on de viajes. No le pedimos que escribiera la
+ontolog\'ia ni las reglas de CLIPS, sino que respondiera como lo har\'ia un
+agente de viajes al explicar sus criterios a un ingeniero del conocimiento.
+El contexto base utilizado fue el siguiente:
+
+\begin{quote}
+\small\itshape You are going to help a knowledge engineer perform knowledge
+elicitation for building a rule-based expert system for touristic travel
+recommendation. You are an expert travel agent. Explain the criteria you use
+to match traveller profiles, constraints and preferences with destinations,
+accommodation, transport and activities. Answers must be direct and useful for
+building rules.
+\end{quote}
+
+Con este contexto busc\'abamos obtener conocimiento del dominio y del proceso de
+decisi\'on, no una soluci\'on ya programada. Despu\'es contrastamos las ideas
+\'utiles con el alcance del enunciado y con lo que realmente quer\'iamos
+representar en nuestro sistema.
+
 \subsubsection{Preguntas realizadas al experto simulado}
-\pendiente
+Las preguntas m\'as relevantes que usamos para orientar la extracci\'on de
+conocimiento fueron:
+\begin{itemize}
+    \item \textit{When travelling with children, what kind of accommodation
+    and destinations are safer?}
+    \item \textit{When the budget is low, is it better to reduce days, quality
+    or transportation cost?}
+    \item \textit{For a romantic trip, which city features matter most?}
+    \item \textit{When should a short trip avoid far-away cities?}
+    \item \textit{How do you compare two valid routes when both satisfy hard
+    constraints?}
+\end{itemize}
+
+Las preguntas est\'an planteadas para sacar criterios de decisi\'on: qu\'e datos
+del usuario importan, qu\'e condiciones son obligatorias, cu\'ando se puede
+flexibilizar algo y qu\'e elementos sirven para comparar rutas posibles.
+
 \subsubsection{Conocimiento incorporado, adaptado o descartado}
-\pendiente
+De esa elicitaci\'on nos quedamos con varias ideas que encajaban con la
+pr\'actica. Incorporamos la importancia de la compatibilidad familiar cuando
+viajan ni\~nos, la lectura rom\'antica de viajes de pareja ligados a boda o
+aniversario, la limitaci\'on de rutas lejanas en viajes cortos y la separaci\'on
+entre condiciones duras y preferencias.
+
+Otras ideas se adaptaron al tama\~no del sistema. Por ejemplo, el experto puede
+hablar de ajustar muchos gastos distintos, pero nosotros hemos representado el
+presupuesto con precios estimados de transporte, estancia, coste diario y
+visitas, y solo flexibilizamos la calidad del alojamiento cuando el usuario lo
+permite. Tambi\'en convertimos la comparaci\'on informal entre rutas en criterios
+concretos que luego pueden puntuar planes factibles.
+
+Por \'ultimo, dejamos fuera detalles que podr\'ian ser realistas en una agencia
+pero no forman parte de esta base de conocimiento: disponibilidad de reservas,
+fechas exactas, climatolog\'ia, documentaci\'on de entrada a pa\'ises o cambios de
+precio en tiempo real. Incluirlos habr\'ia ampliado el dominio sin mejorar la
+resoluci\'on del problema que se pide en la pr\'actica.
+
 \subsection{Descomposici\'on del problema en subproblemas}
 \subsubsection{Adquisici\'on de datos del usuario}
-\pendiente
+El primer subproblema es recoger la informaci\'on necesaria del cliente. Se
+pregunta por su grupo, ni\~nos, evento, motivo, presupuesto, duraci\'on, n\'umero
+de ciudades, preferencias de transporte, calidad m\'inima, posibles sacrificios
+para ajustar coste, inter\'es por ciudades menos conocidas y ritmo del viaje.
+Sin esta parte no hay un caso concreto sobre el que razonar.
+
 \subsubsection{Deducci\'on del perfil, restricciones y preferencias}
-\pendiente
+Con los datos anteriores se completa el perfil de viaje y se organizan las
+decisiones que afectar\'an al resto del proceso. Aqu\'i se deduce el motivo si
+falta o si un evento lo aclara, se traduce el presupuesto a un nivel orientativo
+y se fijan las restricciones y preferencias que tendr\'an un papel distinto en
+la generaci\'on.
+
 \subsubsection{Filtrado de recursos compatibles}
-\pendiente
+Antes de construir planes completos hay que evitar combinaciones que ya se
+sabe que no encajan. Se filtran ciudades por motivo y compatibilidad familiar,
+alojamientos por calidad y aptitud para ni\~nos, gu\'ias por motivo y d\'ias
+disponibles, y conexiones por las restricciones de transporte y distancia.
+
 \subsubsection{Generaci\'on de itinerarios candidatos}
-\pendiente
+Con los recursos compatibles se proponen itinerarios de dos o tres ciudades.
+Cada candidato reparte los d\'ias de estancia entre sus etapas, incorpora los
+transportes necesarios, selecciona alojamientos y arrastra las visitas que se
+mostrar\'an al final. Este subproblema construye el espacio de soluciones sobre
+el que luego se decidir\'a.
+
 \subsubsection{C\'alculo de precio y puntuaci\'on de alternativas}
-\pendiente
+Cada itinerario necesita un precio total estimado por persona. Este precio se
+forma con transportes, coste de alojamientos, coste diario de las ciudades y
+coste de visitas. Si queda por encima del presupuesto, el candidato no es
+v\'alido. Si lo respeta, se calcula una puntuaci\'on para reflejar su adecuaci\'on
+y las preferencias opcionales que satisface.
+
 \subsubsection{Selecci\'on de dos planes con ciudades diferentes}
-\pendiente
+Una vez generados los candidatos se escoge el mejor valorado y se busca una
+segunda alternativa que no sea una copia con otro alojamiento o con una
+variaci\'on irrelevante. La prioridad es encontrar una ruta sin solape de
+ciudades; si la base no permite tanto, al menos debe ser una ruta distinta.
+
 \subsubsection{Explicaci\'on del resultado o del caso sin recomendaci\'on}
-\pendiente
+El \'ultimo subproblema es comunicar la conclusi\'on. Cuando hay planes, se
+imprimen de forma completa con ciudades, d\'ias, visitas, alojamientos,
+transportes, precio, puntuaci\'on y preferencias cumplidas. Cuando no aparece
+ning\'un candidato factible, se explica que las restricciones no se pueden
+satisfacer con la base de conocimiento actual en vez de ocultar el fallo.
+
 \subsection{Descripci\'on informal del proceso de resoluci\'on}
-\pendiente
+Visto de principio a fin, el sistema empieza hablando con el usuario para
+convertir una petici\'on abierta en un caso concreto. Despu\'es interpreta ese
+caso y completa decisiones sencillas de perfil. Con esa informaci\'on recorre la
+base de conocimiento para proponer rutas que tengan ciudades compatibles,
+transportes posibles, alojamientos aceptables y visitas coherentes.
+
+Cada ruta propuesta se revisa con las restricciones obligatorias. Las que no
+entran en presupuesto, no caben en los d\'ias disponibles o incumplen una
+condici\'on marcada por el usuario no llegan a la salida. Sobre las rutas que
+s\'i sobreviven se aplican criterios de comparaci\'on para ordenar alternativas.
+Finalmente se presentan dos recomendaciones distintas si existen; en caso
+contrario se informa de que el conjunto de soluciones factibles ha quedado
+vac\'io.
 
 \section{Formalizaci\'on}
 \subsection{Naturaleza del problema y m\'etodo de resoluci\'on escogido}
 \subsubsection{Clasificaci\'on del perfil del usuario}
-\pendiente
+La primera parte del problema encaja con una tarea de \textbf{clasificaci\'on}.
+El sistema recibe datos directos del usuario, pero para recomendar necesita
+trabajar con un perfil de viaje ya interpretado. El atributo m\'as importante de
+esa clasificaci\'on es el motivo del viaje, que puede quedar como descanso,
+cultural, diversi\'on, rom\'antico, naturaleza o mixto.
+
+Cuando el usuario ya expresa un motivo claro, esa respuesta se conserva. Si la
+respuesta queda abierta, la clasificaci\'on se apoya en el tipo de grupo y en el
+evento: una boda o un aniversario orientan el caso hacia el romanticismo, un
+fin de curso hacia la diversi\'on, viajar con ni\~nos hacia una propuesta de
+descanso y viajar solo sin objetivo expl\'icito hacia una ruta cultural. Tambi\'en
+se normalizan otros datos antes de generar rutas, como pasar el presupuesto a
+un nivel orientativo y convertir la calidad m\'inima del alojamiento a una
+escala num\'erica.
+
+Esta primera tarea reduce la ambig\"uedad de la petici\'on. En vez de generar
+planes con respuestas incompletas, el sistema llega a la siguiente fase con un
+usuario formalizado mediante atributos que pueden aparecer en condiciones de
+reglas.
+
 \subsubsection{Generaci\'on, revisi\'on y comparaci\'on de planes}
-\pendiente
+La segunda parte del problema encaja con un proceso de
+\textbf{propuesta y revisi\'on}. A partir del perfil ya clasificado se proponen
+combinaciones de recursos de la base de conocimiento: ciudades, alojamientos,
+gu\'ias de visita y conexiones. Cada combinaci\'on intenta formar un itinerario
+de dos o tres ciudades.
+
+La revisi\'on se hace comprobando restricciones durante la propia generaci\'on.
+No se debe aceptar una propuesta si usa recursos incompatibles con ni\~nos, si
+incumple la calidad m\'inima, si necesita un avi\'on que el usuario ha rechazado,
+si la distancia no tiene sentido para los d\'ias disponibles o si el precio
+calculado supera el presupuesto. Por eso en la implementaci\'on solo se
+materializan como \texttt{PlanCandidato} las combinaciones que han sobrevivido
+a esos filtros.
+
+El m\'etodo se completa con una \textbf{comparaci\'on heur\'istica}. Las
+restricciones determinan qu\'e planes son v\'alidos; la puntuaci\'on permite
+ordenar los v\'alidos para preferir rutas con mejor adecuaci\'on base, tren si se
+ha pedido, ciudades menos conocidas, calidad por encima del m\'inimo y margen de
+presupuesto.
+
 \subsubsection{Encaje entre los subproblemas y el m\'etodo de resoluci\'on}
-\pendiente
+La descomposici\'on del apartado anterior se puede encajar en el m\'etodo de
+resoluci\'on de esta forma:
+\begin{itemize}
+    \item La adquisici\'on de datos prepara el hecho que representa al usuario.
+    \item La deducci\'on del perfil aplica la clasificaci\'on y completa los
+    atributos que se usar\'an para decidir.
+    \item El filtrado y la generaci\'on de itinerarios forman la parte de
+    propuesta y revisi\'on de soluciones.
+    \item El c\'alculo de precio revisa la restricci\'on de presupuesto y la
+    puntuaci\'on compara los planes factibles.
+    \item La selecci\'on final escoge dos recomendaciones distintas a partir del
+    conjunto de candidatos ordenados.
+    \item La salida muestra la soluci\'on completa o informa de no soluci\'on si
+    la revisi\'on ha dejado el conjunto de candidatos vac\'io.
+\end{itemize}
+
+Por tanto, no hemos formalizado el sistema como una \'unica regla enorme. La
+resoluci\'on se reparte en subtareas que transforman datos de usuario en hechos
+de trabajo, hechos candidatos y, finalmente, recomendaciones.
+
 \subsection{Desarrollo de la ontolog\'ia}
 \subsubsection{Dominio, cobertura y preguntas que debe responder}
-\pendiente
+La ontolog\'ia se ha construido para cubrir el conocimiento que hace falta al
+recomendar viajes personalizados. El dominio no es el turismo completo, sino
+la parte que interviene en nuestros planes: perfil del cliente, destinos,
+servicios, restricciones, preferencias, etapas y paquete de viaje resultante.
+
+Para decidir la cobertura partimos de preguntas que el sistema debe poder
+responder:
+\begin{itemize}
+    \item Qu\'e informaci\'on del usuario condiciona la recomendaci\'on.
+    \item Qu\'e ciudades, alojamientos, actividades y transportes pueden formar
+    una ruta.
+    \item Qu\'e recursos pertenecen a cada etapa y qu\'e etapas pertenecen al
+    paquete completo.
+    \item Qu\'e condiciones debe respetar un viaje y qu\'e preferencias puede
+    cumplir sin tratarlas como obligatorias.
+    \item Qu\'e precio y qu\'e puntuaci\'on resumen la recomendaci\'on final.
+\end{itemize}
+
+A partir de esas preguntas hemos seguido un desarrollo progresivo: primero
+identificamos los conceptos del dominio, despu\'es separamos servicios y
+soluciones, luego a\~nadimos atributos medibles y por \'ultimo definimos las
+relaciones necesarias entre el paquete, sus etapas y los recursos usados.
+
 \subsubsection{T\'erminos relevantes del dominio}
-\pendiente
+Los t\'erminos que hemos considerado relevantes para pasar de la
+conceptualizaci\'on a la ontolog\'ia son:
+\begin{itemize}
+    \item Cliente o usuario, grupo viajero, edad, presupuesto, duraci\'on,
+    objetivo, restricciones y preferencias.
+    \item Ciudad o destino, zona, coste diario, seguridad, popularidad y
+    etiquetas tur\'isticas.
+    \item Alojamiento, categor\'ia, calidad, precio por noche y compatibilidad
+    familiar.
+    \item Actividad o visita, transporte o conexi\'on y coste asociado.
+    \item Etapa, paquete de viaje, precio total y puntuaci\'on.
+\end{itemize}
+
+Estos t\'erminos no se han convertido todos en clases. Algunos son atributos,
+otros son relaciones y otros se concretan como valores controlados en CLIPS.
+La distinci\'on evita que la ontolog\'ia tenga clases innecesarias para cada
+valor de una preferencia o de una categor\'ia.
+
 \subsubsection{Clases, jerarqu\'ia y decisiones de modelado}
-\pendiente
+La jerarqu\'ia parte de la clase general \texttt{Entidad}. Bajo ella situamos
+el usuario, la ciudad, la restricci\'on, la preferencia, el paquete de viaje,
+la etapa y \texttt{Servicio}. Esta \'ultima clase agrupa los recursos que se
+consumen dentro del recorrido. Sus especializaciones son
+\texttt{Alojamiento}, \texttt{Transporte} y \texttt{Actividad}.
+
+Esta separaci\'on responde a dos decisiones de modelado. Primero, el cliente y
+la soluci\'on no son servicios: el usuario describe el caso y el paquete es el
+resultado. Segundo, restricciones y preferencias se mantienen como conceptos
+del dominio porque tienen papeles diferentes en la recomendaci\'on, aunque en
+la implementaci\'on operativa algunas se representen como atributos del
+usuario.
+
+Hemos incluido \texttt{Etapa} porque un paquete de varias ciudades se entiende
+mejor como una secuencia de partes: cada etapa visita una ciudad y usa un
+alojamiento y unas actividades. En CLIPS esta estructura se compacta dentro
+del plan por simplicidad, pero en la ontolog\'ia permite expresar el dominio de
+forma m\'as natural.
+
 \subsubsection{Propiedades, atributos y restricciones de valores}
-\pendiente
+Los atributos de datos recogen la informaci\'on que se necesita medir o mostrar.
+En el usuario se representan la edad, el presupuesto en euros y la duraci\'on
+m\'axima. En ciudad aparece el coste diario. En alojamiento aparecen el precio
+por noche y la calidad. En transporte se guardan coste y horas. Por \'ultimo,
+el paquete de viaje tiene precio total y puntuaci\'on.
+
+Adem\'as de esas propiedades de la ontolog\'ia, la formalizaci\'on operativa
+necesita valores controlados para poder escribir reglas precisas. Por eso en
+CLIPS se restringen, entre otros, los tipos de grupo, los motivos del viaje,
+los niveles de calidad, los medios de transporte, la popularidad de una ciudad
+y los \'ambitos de una conexi\'on. As\'i evitamos que el razonamiento dependa de
+texto libre.
+
 \subsubsection{Relaciones entre conceptos}
-\pendiente
+Las relaciones de objeto de la ontolog\'ia expresan c\'omo se arma una
+recomendaci\'on:
+\begin{itemize}
+    \item \texttt{viajaA} une un \texttt{PaqueteViaje} con las
+    \texttt{Ciudad} que visita.
+    \item \texttt{incluyeEtapa} une el paquete con cada \texttt{Etapa}.
+    \item \texttt{usaAlojamiento} e \texttt{incluyeActividad} describen los
+    recursos de una etapa.
+    \item \texttt{usaTransporte} indica los desplazamientos necesarios para el
+    paquete completo.
+    \item \texttt{cumplePreferencia} y \texttt{respetaRestriccion} distinguen
+    los criterios opcionales de las condiciones obligatorias.
+\end{itemize}
+
+Con estas relaciones la ontolog\'ia no solo enumera conceptos, sino que permite
+leer una recomendaci\'on como un objeto compuesto.
+
 \subsubsection{Instancias necesarias para la base de conocimiento}
-\pendiente
+Para resolver casos concretos necesitamos instancias de los conceptos
+anteriores. En nuestra base de conocimiento se materializan como hechos
+iniciales de CLIPS:
+\begin{itemize}
+    \item Ciudades disponibles con coste, popularidad, compatibilidad familiar,
+    puntuaci\'on base y etiquetas.
+    \item Alojamientos asociados a una ciudad con calidad y precio por noche.
+    \item Actividades y gu\'ias de visita que dan contenido concreto a cada
+    etapa.
+    \item Conexiones desde el origen y entre ciudades con medio, coste, horas y
+    \'ambito.
+\end{itemize}
+
+Las instancias se han seleccionado a partir de la informaci\'on de viajes
+consultada y se han adaptado a la granularidad del sistema. La ontolog\'ia
+define su estructura; la base de hechos aporta los recursos concretos con los
+que el motor puede construir rutas.
+
 \subsection{Ontolog\'ia final del sistema}
 \subsubsection{Grafo de la jerarqu\'ia de conceptos}
-\pendiente
+La Figura \ref{fig:jerarquia-ontologia} muestra la jerarqu\'ia final de clases.
+La rama de \texttt{Servicio} agrupa los recursos utilizados por el paquete,
+mientras que las dem\'as ramas representan el caso, la soluci\'on y los
+criterios que se aplican sobre ella.
+
+\begin{figure}[ht]
+    \centering
+    \begin{tikzpicture}[
+        box/.style={draw=UPCBlue, rounded corners=2pt, align=center,
+                    font=\footnotesize, inner sep=4pt},
+        edge/.style={-{Latex[length=2mm]}, draw=UPCBlue}
+    ]
+        \node[box] (entidad) at (0,3.0) {Entidad};
+        \node[box] (usuario) at (-6.3,1.4) {Usuario};
+        \node[box] (ciudad) at (-4.4,1.4) {Ciudad};
+        \node[box] (servicio) at (-2.4,1.4) {Servicio};
+        \node[box] (restriccion) at (-0.1,1.4) {Restriccion};
+        \node[box] (preferencia) at (2.15,1.4) {Preferencia};
+        \node[box] (paquete) at (4.65,1.4) {PaqueteViaje};
+        \node[box] (etapa) at (6.85,1.4) {Etapa};
+        \node[box] (alojamiento) at (-4.5,-0.3) {Alojamiento};
+        \node[box] (transporte) at (-2.2,-0.3) {Transporte};
+        \node[box] (actividad) at (0.1,-0.3) {Actividad};
+
+        \draw[edge] (entidad) -- (usuario);
+        \draw[edge] (entidad) -- (ciudad);
+        \draw[edge] (entidad) -- (servicio);
+        \draw[edge] (entidad) -- (restriccion);
+        \draw[edge] (entidad) -- (preferencia);
+        \draw[edge] (entidad) -- (paquete);
+        \draw[edge] (entidad) -- (etapa);
+        \draw[edge] (servicio) -- (alojamiento);
+        \draw[edge] (servicio) -- (transporte);
+        \draw[edge] (servicio) -- (actividad);
+    \end{tikzpicture}
+    \caption{Jerarqu\'ia de conceptos de la ontolog\'ia de viajes.}
+    \label{fig:jerarquia-ontologia}
+\end{figure}
+
 \subsubsection{Descripci\'on detallada de clases}
-\pendiente
+Las clases finales tienen el siguiente papel:
+\begin{itemize}
+    \item \texttt{Entidad}: ra\'iz com\'un de los conceptos principales del
+    dominio.
+    \item \texttt{Usuario}: perfil del cliente, con datos del grupo, objetivo,
+    condiciones y preferencias.
+    \item \texttt{Ciudad}: destino candidato que aporta caracter\'isticas
+    tur\'isticas y costes.
+    \item \texttt{Servicio}: clase general para recursos que se usan dentro de
+    una recomendaci\'on.
+    \item \texttt{Alojamiento}: servicio de estancia asociado a una ciudad.
+    \item \texttt{Transporte}: servicio que permite conectar origen y destinos.
+    \item \texttt{Actividad}: visita concreta que puede formar parte de una
+    etapa.
+    \item \texttt{Restriccion}: condici\'on que un paquete debe respetar para
+    ser v\'alido.
+    \item \texttt{Preferencia}: criterio opcional que mejora o explica una
+    alternativa factible.
+    \item \texttt{PaqueteViaje}: soluci\'on recomendada con ruta, precio y
+    puntuaci\'on.
+    \item \texttt{Etapa}: parte del paquete centrada en una ciudad concreta.
+\end{itemize}
+
 \subsubsection{Descripci\'on detallada de atributos y relaciones}
-\pendiente
+Las propiedades de datos de la ontolog\'ia son \texttt{edad},
+\texttt{presupuestoEuros} y \texttt{duracionMaxDias} para el usuario;
+\texttt{nombre} para nombrar recursos; \texttt{costeDiario} para ciudad;
+\texttt{precioNoche} y \texttt{calidad} para alojamiento;
+\texttt{costeTransporte} y \texttt{horasTransporte} para transporte; y
+\texttt{precioTotal} y \texttt{puntuacion} para el paquete de viaje.
+
+Las relaciones finales conectan el paquete con la ruta y sus recursos. El
+paquete usa \texttt{viajaA}, \texttt{incluyeEtapa} y
+\texttt{usaTransporte}; cada etapa usa \texttt{usaAlojamiento} e
+\texttt{incluyeActividad}. A ellas se suman \texttt{cumplePreferencia} y
+\texttt{respetaRestriccion}, que dejan claro que un paquete se eval\'ua con
+dos tipos de criterios.
+
 \subsubsection{Correspondencia entre la ontolog\'ia y la representaci\'on en CLIPS}
-\pendiente
+La ontolog\'ia y CLIPS representan el mismo dominio con niveles de detalle
+distintos. La correspondencia principal es:
+\begin{itemize}
+    \item \texttt{Usuario}, \texttt{Ciudad}, \texttt{Alojamiento} y
+    \texttt{Actividad} se convierten directamente en \texttt{deftemplate} con
+    el mismo papel.
+    \item \texttt{Transporte} se implementa como \texttt{Conexion}, porque en
+    el razonamiento interesa guardar origen, destino, medio, coste, horas y
+    \'ambito del tramo.
+    \item \texttt{PaqueteViaje} se representa con \texttt{PlanCandidato}; al
+    seleccionar una recomendaci\'on aparece adem\'as el hecho
+    \texttt{PlanElegido}.
+    \item \texttt{Etapa} se aplana dentro del plan con los campos de ciudad,
+    d\'ias, alojamiento, visitas y transporte de cada posici\'on de la ruta.
+    \item \texttt{Restriccion} y \texttt{Preferencia} se materializan sobre
+    todo como atributos del usuario y como condiciones o puntuaciones en las
+    reglas.
+\end{itemize}
+
+CLIPS a\~nade algunos hechos auxiliares que no son clases del dominio
+ontol\'ogico. \texttt{Fase} controla el avance del razonamiento,
+\texttt{DecisionExperta} registra deducciones realizadas y
+\texttt{GuiaVisitas} empaqueta visitas compatibles para que la recomendaci\'on
+final sea concreta.
+
 \subsection{Formalizaci\'on del razonamiento por subproblemas}
 \subsubsection{Datos de entrada y hechos de trabajo}
-\pendiente
+El caso de entrada se formaliza en un hecho \texttt{Usuario}. La entrevista
+rellena sus atributos con respuestas validadas: edad, grupo, presencia de
+ni\~nos, evento, motivo, presupuesto, duraci\'on, rango de ciudades,
+preferencias de transporte, calidad m\'inima, posibles sacrificios, inter\'es
+por destinos menos conocidos y ritmo.
+
+El razonamiento combina ese hecho con la base est\'atica de ciudades,
+alojamientos, actividades, gu\'ias de visita y conexiones. Como hechos de
+trabajo se usan \texttt{Fase} para controlar en qu\'e subproblema estamos,
+\texttt{DecisionExperta} para dejar constancia de algunas deducciones,
+\texttt{PlanCandidato} para las soluciones construidas y
+\texttt{PlanElegido} para las recomendaciones finales.
+
 \subsubsection{Restricciones duras del viaje}
-\pendiente
+Las restricciones duras se aplican antes de aceptar un plan candidato:
+\begin{itemize}
+    \item El n\'umero de ciudades debe estar dentro del rango pedido y cada
+    etapa debe respetar los d\'ias m\'inimos y m\'aximos manejados por el
+    sistema.
+    \item El motivo del viaje debe ser compatible con las etiquetas de las
+    ciudades y con la gu\'ia de visitas escogida.
+    \item Si viajan ni\~nos, ciudades y alojamientos deben estar marcados como
+    aptos.
+    \item La calidad del alojamiento debe alcanzar el m\'inimo solicitado,
+    salvo la relajaci\'on controlada cuando el usuario acepta sacrificar
+    calidad.
+    \item Si el usuario evita avi\'on, ning\'un tramo de la ruta puede usarlo.
+    En viajes cortos tambi\'en se descartan tramos intercontinentales poco
+    razonables.
+    \item El precio total calculado debe ser menor o igual que el presupuesto
+    disponible.
+\end{itemize}
+
+Estas condiciones se formalizan como pruebas de compatibilidad y condiciones
+num\'ericas durante la generaci\'on de rutas.
+
 \subsubsection{Preferencias y heur\'isticas de puntuaci\'on}
-\pendiente
+Las preferencias se formalizan como bonificaciones sobre planes que ya son
+v\'alidos. De forma resumida, la puntuaci\'on de una ruta se calcula como:
+\[
+    S = \sum p_{base} + B_{tren} + B_{oculto} + B_{calidad} + B_{precio}.
+\]
+
+El bonus de tren solo aparece si el usuario lo prefiere y alg\'un tramo lo usa.
+El bonus de ciudades menos conocidas depende de la popularidad de los destinos.
+El bonus de calidad premia alojamientos que superan la calidad m\'inima. El
+bonus de precio favorece que el plan deje margen respecto al presupuesto. As\'i
+el sistema puede comparar soluciones sin transformar cada preferencia en una
+prohibici\'on.
+
 \subsubsection{Construcci\'on del precio total y duraci\'on del viaje}
-\pendiente
+La duraci\'on de un candidato parte de los d\'ias indicados por el usuario y se
+reparte entre sus etapas. En rutas de dos ciudades se divide en dos bloques; en
+rutas de tres ciudades se distribuye en tres partes. Despu\'es se comprueba que
+cada parte respeta los l\'imites de d\'ias por ciudad y el m\'inimo exigido por
+la gu\'ia de visitas escogida.
+
+El precio total se formaliza sumando transportes, estancias, coste diario de
+cada ciudad y visitas. Para dos ciudades:
+\[
+    P = T + d_1(a_1 + c_1) + d_2(a_2 + c_2) + v_1 + v_2.
+\]
+
+En esa expresi\'on, \(T\) suma los transportes, \(a_i\) es el precio por noche
+del alojamiento de la etapa \(i\), \(c_i\) su coste diario y \(v_i\) el coste
+de sus visitas. Para tres ciudades se a\~nade el tercer tramo interno, la
+tercera estancia y las visitas de la tercera etapa. Esta expresi\'on permite
+comparar todos los planes con el presupuesto del mismo modo.
+
 \subsubsection{Elecci\'on de dos recomendaciones diferentes}
-\pendiente
+La selecci\'on parte de los \texttt{PlanCandidato} ya puntuados. El primer plan
+elegido es el candidato con mayor score. Para el segundo se prioriza el mejor
+plan cuya ruta no comparte ciudades con el primero. Si no existe una
+alternativa sin solape, se busca la mejor ruta distinta, evitando devolver dos
+veces el mismo recorrido con una variaci\'on superficial.
+
+Esta formalizaci\'on responde a la necesidad de entregar dos alternativas
+reales. La selecci\'on no vuelve a calcular los planes, sino que trabaja sobre
+el conjunto de candidatos factibles que ha dejado la revisi\'on anterior.
+
 \subsubsection{Justificaci\'on de preferencias cumplidas y no soluci\'on}
-\pendiente
+Cada candidato conserva un texto de preferencias cumplidas que resume por qu\'e
+destaca una vez superadas las restricciones. En la salida se muestran tambi\'en
+precio, duraci\'on, ciudades, d\'ias por ciudad, visitas, alojamientos y
+transportes, de modo que la recomendaci\'on no sea una puntuaci\'on opaca.
+
+Si no se ha podido elegir ni siquiera el primer plan, el sistema formaliza el
+resultado como \textbf{no soluci\'on}. En ese caso se informa de que las
+restricciones introducidas no se pueden satisfacer con la base actual y se
+orienta sobre qu\'e condiciones podr\'ian relajarse, como presupuesto, d\'ias,
+avi\'on o calidad m\'inima.
 
 \section{Implementaci\'on}
-\subsection{Organizaci\'on del proyecto y archivos entregados}
-\pendiente
+
 \subsection{Representaci\'on del conocimiento en CLIPS}
 \subsubsection{\texttt{deftemplates} y hechos principales}
-\pendiente
+La representaci\'on del conocimiento empieza con los \texttt{deftemplates}. En
+ellos definimos la estructura de los hechos que podr\'an existir en la base de
+hechos durante la ejecuci\'on. Los templates principales son:
+\begin{itemize}
+    \item \texttt{Fase}, que controla en qu\'e parte del razonamiento est\'a el
+    sistema: bienvenida, preguntas, deducci\'on, generaci\'on, selecci\'on,
+    salida o fin.
+    \item \texttt{Usuario}, que almacena los datos del cliente, restricciones y
+    preferencias.
+    \item \texttt{Ciudad}, \texttt{Alojamiento}, \texttt{Actividad},
+    \texttt{GuiaVisitas} y \texttt{Conexion}, que forman la base de
+    conocimiento tur\'istica.
+    \item \texttt{PlanCandidato}, que representa un itinerario factible
+    generado por el sistema.
+    \item \texttt{PlanElegido}, que marca cu\'ales de los candidatos se van a
+    mostrar como recomendaci\'on final.
+    \item \texttt{DecisionExperta}, que guarda algunas deducciones relevantes
+    realizadas por las reglas.
+\end{itemize}
+
+Hemos usado valores controlados en muchos slots, por ejemplo en el tipo de
+grupo, motivo del viaje, calidad de alojamiento, medio de transporte o
+popularidad de una ciudad. Esto hace que las reglas puedan comparar valores
+concretos y evita errores por texto libre.
+
 \subsubsection{Base de conocimiento de ciudades, alojamientos, visitas y conexiones}
-\pendiente
+La base de conocimiento se carga mediante varios bloques \texttt{deffacts}. El
+primero inicializa el sistema en la fase de bienvenida. Despu\'es aparecen los
+hechos que representan los recursos disponibles.
+
+En \texttt{CiudadesDisponibles} se definen destinos con nombre, pa\'is,
+continente, zona, coste diario, seguridad, compatibilidad con ni\~nos,
+popularidad, puntuaci\'on base y etiquetas tur\'isticas. Estas etiquetas son las
+que permiten relacionar una ciudad con motivos como cultura, romanticismo,
+descanso, diversi\'on o naturaleza.
+
+En \texttt{AlojamientosDisponibles} cada alojamiento queda asociado a una
+ciudad y tiene categor\'ia, calidad num\'erica, precio por noche y aptitud para
+ni\~nos. En \texttt{ActividadesDisponibles} se guardan visitas concretas con
+tipo, horas, coste, prioridad y compatibilidad familiar. Adem\'as,
+\texttt{GuiasDeVisita} agrupa visitas por ciudad y motivo para que la salida
+final no sea gen\'erica.
+
+Por \'ultimo, \texttt{ConexionesDisponibles} representa transportes desde el
+origen y entre ciudades. Cada conexi\'on incluye origen, destino, medio, \'ambito,
+coste y horas. Con esto el sistema puede construir rutas multi-ciudad y no
+solo elegir destinos independientes.
+
 \subsubsection{Hechos din\'amicos de usuario, candidatos y planes elegidos}
-\pendiente
+Durante la ejecuci\'on se crean y modifican hechos din\'amicos. El hecho
+\texttt{Usuario} empieza vac\'io en modo interactivo y se va rellenando con las
+respuestas de la entrevista. En modo de prueba, los casos autom\'aticos insertan
+directamente un \texttt{Usuario} completo y el sistema salta a las deducciones.
+
+Los \texttt{PlanCandidato} se generan solo si una combinaci\'on supera los
+filtros de compatibilidad, d\'ias, transporte, alojamiento, gu\'ias y
+presupuesto. Cada candidato ya contiene todo lo necesario para imprimirse:
+ciudades, d\'ias, alojamientos, categor\'ias, transportes, visitas, precio,
+puntuaci\'on y preferencias cumplidas.
+
+Los \texttt{PlanElegido} no duplican toda la informaci\'on del viaje. Solo
+guardan el orden de recomendaci\'on y el identificador del candidato elegido.
+De esta manera la salida final consulta el candidato original y evita repetir
+datos en varios hechos.
+
 \subsection{Funciones auxiliares del sistema}
-\pendiente
+Las funciones auxiliares se han usado para separar c\'alculos repetidos de las
+reglas. Las primeras son \texttt{ask-question} y \texttt{ask-number}, que
+validan las respuestas del usuario: una comprueba que la respuesta est\'e entre
+los valores permitidos y la otra que el n\'umero est\'e dentro del rango
+aceptado.
+
+Despu\'es hay funciones de normalizaci\'on, como \texttt{calidad-a-num} y
+\texttt{presupuesto-a-nivel}. La primera transforma calidades como hostal,
+est\'andar o lujo a una escala num\'erica. La segunda traduce euros a un nivel
+orientativo de presupuesto.
+
+El bloque m\'as importante es el de compatibilidad. Ah\'i se comprueba si el
+motivo encaja con cada ciudad, si el tipo de gu\'ia es v\'alido para el destino,
+si la calidad del alojamiento cumple el m\'inimo indicado y si los transportes
+respetan las restricciones del usuario.
+
+Finalmente est\'an las funciones de puntuaci\'on y explicaci\'on. Calculan los
+bonos por tren, ciudades menos conocidas, calidad y precio, y tambi\'en generan
+el texto de preferencias cumplidas. Adem\'as, se usan funciones espec\'ificas
+para comparar rutas y escoger dos recomendaciones distintas cuando es posible.
+
 \subsection{Reglas y fases del motor de inferencia}
 \subsubsection{Bienvenida y entrevista}
-\pendiente
+La ejecuci\'on empieza en la fase \texttt{bienvenida}. Si no hay ning\'un
+\texttt{Usuario}, la regla de inicio imprime el encabezado, crea el usuario
+por defecto y cambia la fase a \texttt{preguntas}. A partir de ah\'i se disparan
+reglas que preguntan edad, grupo, ni\~nos, evento, motivo, presupuesto,
+duraci\'on, n\'umero de ciudades, preferencias de transporte, calidad, posibles
+sacrificios, inter\'es por destinos menos conocidos y ritmo.
+
+La entrevista est\'a organizada como reglas peque\~nas. Cada regla solo pregunta
+un dato si todav\'ia est\'a en valor desconocido o sin inicializar. Cuando todos
+los campos necesarios est\'an completos, una regla final cambia la fase a
+\texttt{deduccion}. Para los casos autom\'aticos existe una regla especial que
+detecta un usuario ya cargado y evita repetir la entrevista.
+
 \subsubsection{Deducciones expertas}
-\pendiente
+En la fase \texttt{deduccion} se aplican reglas que completan o ajustan el
+perfil del usuario. Primero se calculan valores derivados, como el nivel de
+presupuesto y el n\'umero asociado a la calidad m\'inima. Luego se aplican
+deducciones de sentido com\'un: boda o aniversario implican un viaje rom\'antico,
+fin de curso implica diversi\'on, viajar con ni\~nos orienta hacia descanso,
+pareja sin ni\~nos puede ser rom\'antico, amigos j\'ovenes apuntan a diversi\'on y
+viajar solo sin motivo se trata como cultural.
+
+Tambi\'en hay ajustes de restricciones. Si el viaje es corto y el usuario hab\'ia
+permitido tres ciudades, se limita a dos para evitar una ruta demasiado
+apretada. Si el presupuesto es econ\'omico y el usuario acepta sacrificar
+calidad, el sistema permite bajar la calidad m\'inima de forma controlada.
+
 \subsubsection{Generaci\'on de candidatos}
-\pendiente
+La generaci\'on tiene dos reglas principales: una para rutas de dos ciudades y
+otra para rutas de tres. Ambas siguen la misma idea. Primero leen el perfil del
+usuario, despu\'es buscan ciudades compatibles con el motivo y la presencia de
+ni\~nos, conexiones de transporte, alojamientos v\'alidos y gu\'ias de visita
+coherentes.
+
+Si todos los recursos encajan, la regla reparte los d\'ias entre las ciudades y
+calcula el precio total. El precio incluye transportes, noches de alojamiento,
+coste diario de cada ciudad y coste de las visitas. Solo si el precio no supera
+el presupuesto se calcula la puntuaci\'on y se afirma un
+\texttt{PlanCandidato}. As\'i el sistema no llena la base de hechos con planes
+que luego habr\'ia que descartar.
+
 \subsubsection{Selecci\'on de recomendaciones}
-\pendiente
+Cuando termina la fase de generaci\'on, el sistema pasa a \texttt{seleccion}. La
+primera regla escoge como primer plan el candidato con mayor puntuaci\'on. Para
+el segundo plan se intenta escoger el mejor candidato sin solape de ciudades
+con el primero.
+
+Si no existe una alternativa sin solape completo, hay una regla de respaldo que
+busca la mejor ruta distinta. Esta decisi\'on evita imprimir dos veces el mismo
+viaje con cambios menores, que ser\'ia una salida pobre para el enunciado.
+
 \subsubsection{Salida explicada y cierre del sistema}
-\pendiente
+En la fase \texttt{salida} hay dos caminos. Si no se ha elegido ning\'un plan,
+se imprime un mensaje de no soluci\'on indicando que las restricciones no pueden
+satisfacerse con la base actual y sugiriendo relajar presupuesto, d\'ias, avi\'on
+o calidad.
+
+Si hay planes elegidos, el sistema imprime cada recomendaci\'on con puntuaci\'on
+interna, precio estimado por persona, duraci\'on, ciudades y d\'ias por ciudad,
+visitas, alojamientos, transportes y preferencias cumplidas. Si solo se ha
+encontrado un plan factible, se avisa de que convendr\'ia relajar restricciones
+para obtener una segunda alternativa. Finalmente se cambia la fase a
+\texttt{fin}.
+
 \subsection{Mecanismos de control y modularizaci\'on del razonamiento}
-\pendiente
+El principal mecanismo de control es el hecho \texttt{Fase}. En vez de dejar
+que todas las reglas puedan activarse en cualquier momento, cada grupo de
+reglas exige estar en una fase concreta. Esto hace que el razonamiento avance
+en orden: entrevista, deducci\'on, generaci\'on, selecci\'on y salida.
+
+Tambi\'en se usan prioridades con \texttt{declare (salience ...)}. Las reglas de
+generaci\'on tienen prioridad positiva para crear candidatos antes de pasar a
+selecci\'on. Las reglas de transici\'on tienen salience negativa para ejecutarse
+cuando ya no quedan reglas m\'as espec\'ificas de esa fase. En selecci\'on, el
+primer plan y el segundo sin solape tienen m\'as prioridad que el respaldo con
+ruta distinta.
+
+La modularizaci\'on no se ha hecho con varios archivos, sino con secciones
+claras dentro del mismo \texttt{viajes.clp}. Esto nos ha parecido suficiente
+para el tama\~no de la pr\'actica y facilita cargar el sistema con una sola
+orden.
+
 \subsection{Decisiones de implementaci\'on relevantes}
 \subsubsection{Restricciones obligatorias frente a preferencias}
-\pendiente
+Una decisi\'on importante ha sido tratar de forma diferente restricciones y
+preferencias. Las restricciones aparecen como condiciones que un candidato debe
+cumplir: presupuesto, d\'ias, n\'umero de ciudades, evitar avi\'on, calidad m\'inima
+y compatibilidad familiar. Si fallan, el plan ni siquiera se afirma como
+\texttt{PlanCandidato}.
+
+Las preferencias se aplican despu\'es mediante puntuaci\'on. Por ejemplo, usar
+tren, incluir ciudades menos masificadas, superar la calidad m\'inima o dejar
+margen de presupuesto suma puntos, pero no invalida por s\'i solo un plan que
+cumple las restricciones. Esta separaci\'on hace que el sistema sea menos
+fr\'agil y permita comparar alternativas razonables.
+
 \subsubsection{C\'alculo num\'erico de precios}
-\pendiente
+Hemos usado precios num\'ericos porque el enunciado pide mostrar una
+recomendaci\'on concreta y porque el presupuesto es una restricci\'on dura. Cada
+candidato suma el coste de los transportes, el coste de alojamiento por noche,
+el coste diario de cada ciudad y el coste de las gu\'ias de visita.
+
+El c\'alculo se hace dentro de las reglas de generaci\'on, justo antes de afirmar
+el plan. Esto evita generar planes que ya se sabe que superan el presupuesto.
+Adem\'as, el margen restante se usa como parte de la puntuaci\'on con
+\texttt{bonus-precio}, de manera que dos planes v\'alidos pueden compararse
+teniendo en cuenta cu\'al aprovecha mejor el presupuesto.
+
 \subsubsection{Control de rutas distintas y caso imposible}
-\pendiente
+Para cumplir la idea de dos recomendaciones distintas, el identificador del
+plan incluye ciudades, alojamientos, transportes y gu\'ias de visita. Adem\'as,
+la selecci\'on del segundo plan usa funciones espec\'ificas para comprobar si dos
+rutas no comparten ciudades o, como m\'inimo, si no son exactamente la misma.
+
+El caso imposible se controla en la salida. Si despu\'es de generar y seleccionar
+no existe ning\'un \texttt{PlanElegido} de orden 1, se dispara la regla de no
+soluci\'on. Esto es mejor que forzar un viaje incorrecto, porque mantiene la
+coherencia entre restricciones y recomendaci\'on.
+
 \subsection{Desarrollo incremental y prototipos}
 \subsubsection{Prototipo inicial}
-\pendiente
+El primer objetivo fue tener un prototipo peque\~no pero completo: preguntar
+datos del usuario, deducir un perfil b\'asico y producir alguna recomendaci\'on.
+En esta fase lo importante no era tener toda la base de conocimiento, sino
+comprobar que CLIPS pod\'ia encadenar preguntas, hechos de usuario y reglas de
+recomendaci\'on.
+
+Esa idea se conserva en la versi\'on final con la fase de entrevista, las reglas
+de deducci\'on y el control por \texttt{Fase}. Aunque el sistema final es m\'as
+grande, sigue teniendo el mismo esqueleto que un prototipo funcional.
+
 \subsubsection{Extensiones y revisiones intermedias}
-\pendiente
+Despu\'es ampliamos el prototipo para cubrir mejor lo que ped\'ia el enunciado.
+Las extensiones principales fueron:
+\begin{itemize}
+    \item pasar de destinos sueltos a itinerarios de dos o tres ciudades;
+    \item a\~nadir transporte entre etapas y vuelta al origen;
+    \item incorporar alojamientos, visitas concretas y gu\'ias de visita;
+    \item calcular precios num\'ericos;
+    \item separar restricciones de preferencias;
+    \item seleccionar dos planes diferentes;
+    \item incluir casos de no soluci\'on y juegos de prueba autom\'aticos.
+\end{itemize}
+
+Estas revisiones hicieron que el sistema dejara de ser una recomendaci\'on
+simple y pasara a generar paquetes de viaje completos.
+
 \subsubsection{Versi\'on final}
-\pendiente
+La versi\'on final integra todos los bloques en un \'unico flujo de razonamiento.
+El usuario puede usar el sistema de forma interactiva o ejecutar directamente
+un caso de prueba. En ambos modos se llega a la misma secuencia: deducci\'on del
+perfil, generaci\'on de candidatos, selecci\'on de recomendaciones y salida
+explicada.
+
+El resultado final cumple los puntos principales que necesit\'abamos: rutas de
+varias ciudades, transportes entre etapas, precio total, visitas concretas,
+alojamientos, dos alternativas diferentes cuando sea posible y mensaje de no
+soluci\'on cuando las restricciones son incompatibles.
+
 \subsubsection{Planificaci\'on y organizaci\'on del trabajo del grupo}
-\pendiente
+Nos hemos organizado dividiendo el trabajo por partes del sistema. Primero se
+defini\'o el dominio y la ontolog\'ia, despu\'es se implement\'o la estructura en
+CLIPS y finalmente se completaron reglas, base de conocimiento y pruebas. Esta
+separaci\'on nos permiti\'o avanzar sin mezclar todo a la vez.
+
 \subsection{Instrucciones de ejecuci\'on}
-\pendiente
+Para ejecutar el sistema en modo interactivo desde CLIPS:
+\begin{verbatim}
+(clear)
+(load "viajes.clp")
+(reset)
+(run)
+\end{verbatim}
+
+Tambi\'en se pueden ejecutar los juegos de prueba definidos al final del archivo:
+\begin{verbatim}
+(clear)
+(load "viajes.clp")
+(caso-familia-alto)
+(caso-estudiante-tren)
+(caso-pareja-romantica)
+(caso-amigos-diversion)
+(caso-naturaleza-menos-conocido)
+(caso-imposible-sin-avion-asia)
+\end{verbatim}
+
+Estas pruebas no son una ejecuci\'on interactiva en la que vamos respondiendo
+por teclado. Son funciones ya preparadas al final de \texttt{viajes.clp} que
+hacen \texttt{reset}, insertan un usuario con las respuestas ya cargadas y
+despu\'es ejecutan \texttt{run}. A efectos del razonamiento act\'uan igual que si
+ese usuario hubiera contestado la entrevista completa, porque se activa el
+mismo motor de inferencia, las mismas reglas y la misma salida final.
 
 \section{Juegos de prueba y validaci\'on}
 \subsection{Criterios de selecci\'on de los juegos de prueba}
-\pendiente
+Los juegos de prueba se han escogido para comprobar que el sistema no funciona
+solo con un caso favorable, sino con perfiles distintos y restricciones
+diferentes. Hemos intentado cubrir viajes familiares, viajes con presupuesto
+ajustado, deducciones de perfil, preferencias de transporte, rutas de ocio,
+viajes de naturaleza y un caso imposible.
+
+Cada prueba se ejecuta con una funci\'on definida al final de
+\texttt{viajes.clp}. No son casos interactivos escritos a mano durante la
+ejecuci\'on, sino funciones que simulan esa interacci\'on: hacen \texttt{reset},
+insertan un usuario ya completo y ejecutan \texttt{run}. De esta forma se prueba
+exactamente el mismo motor de inferencia que en modo interactivo, pero sin
+tener que contestar manualmente a todas las preguntas cada vez.
+
 \subsection{Cobertura de casos comunes, restricciones y excepciones}
-\pendiente
+El conjunto de pruebas cubre los siguientes aspectos del sistema:
+\begin{itemize}
+    \item Recomendaci\'on para una familia con ni\~nos y calidad alta.
+    \item Restricci\'on dura de evitar avi\'on y preferencia por tren.
+    \item Deducci\'on de viaje rom\'antico a partir de un aniversario.
+    \item Deducci\'on de diversi\'on a partir de un fin de curso.
+    \item Preferencia por naturaleza y lugares menos conocidos.
+    \item Detecci\'on del caso sin recomendaci\'on factible.
+\end{itemize}
+
+La salida completa de las pruebas se conserva en
+\texttt{SALIDAS\_PRUEBAS.txt}. En este apartado recogemos los datos principales
+de esa salida para justificar el comportamiento del sistema.
+
 \subsection{Caso 1: familia con ni\~nos y presupuesto alto}
 \subsubsection{Escenario, objetivo y entrada}
-\pendiente
+Este caso representa una familia con ni\~nos, presupuesto alto y preferencia por
+un viaje de descanso. El usuario pide entre dos y tres ciudades, ocho d\'ias de
+duraci\'on, calidad m\'inima superior y no impone restricciones sobre el avi\'on.
+
+El objetivo de la prueba es comprobar que el sistema respeta la compatibilidad
+familiar, mantiene alojamientos de calidad alta y genera un itinerario
+multi-ciudad dentro del presupuesto.
+
+Comando ejecutado:
+\begin{verbatim}
+(caso-familia-alto)
+\end{verbatim}
+
 \subsubsection{Resultado esperado}
-\pendiente
+Esperamos obtener dos planes factibles de descanso, con ciudades y alojamientos
+aptos para ni\~nos, precio inferior a 4500 euros por persona y visitas
+coherentes con un viaje familiar o relajado.
+
 \subsubsection{Salida original de CLIPS}
-\pendiente
+La salida genera dos recomendaciones. Los valores principales fueron:
+\begin{verbatim}
+Plan 1: Punta Cana, Cancun, Costa Rica
+Precio: 3488 euros
+Duracion: 8 dias
+Puntuacion: 237
+Preferencias: respeta la calidad minima de alojamiento
+
+Plan 2: Cancun, Costa Rica
+Precio: 3222 euros
+Duracion: 8 dias
+Puntuacion: 169
+Preferencias: respeta la calidad minima de alojamiento
+\end{verbatim}
+
 \subsubsection{Explicaci\'on del resultado obtenido}
-\pendiente
+El resultado es correcto porque ambos planes quedan por debajo del presupuesto
+y usan alojamientos familiares de categor\'ia alta, como resorts o hoteles
+superiores. Adem\'as, el sistema propone destinos de playa, descanso y
+naturaleza, que encajan con el motivo del viaje y con el perfil familiar. La
+primera recomendaci\'on tiene m\'as puntuaci\'on porque incluye tres ciudades y
+combina m\'as recursos compatibles.
+
 \subsection{Caso 2: estudiante que prioriza tren y evita avi\'on}
 \subsubsection{Escenario, objetivo y entrada}
-\pendiente
+Este caso representa un usuario joven que viaja solo, con presupuesto ajustado,
+motivo cultural, preferencia por tren y restricci\'on expl\'icita de evitar
+avi\'on. La duraci\'on es de seis d\'ias y el viaje debe tener dos ciudades.
+
+El objetivo es comprobar que evitar avi\'on act\'ua como restricci\'on dura y que
+la preferencia por tren se refleja en la puntuaci\'on y en la explicaci\'on final.
+
+Comando ejecutado:
+\begin{verbatim}
+(caso-estudiante-tren)
+\end{verbatim}
+
 \subsubsection{Resultado esperado}
-\pendiente
+Esperamos que no aparezca ning\'un tramo en avi\'on, que los planes usen
+transporte ferroviario y que el presupuesto de 1250 euros sea suficiente para
+generar rutas culturales con alojamientos econ\'omicos.
+
 \subsubsection{Salida original de CLIPS}
-\pendiente
+La salida genera dos planes dentro del presupuesto:
+\begin{verbatim}
+Plan 1: Lisboa, Sevilla
+Precio: 914 euros
+Duracion: 6 dias
+Puntuacion: 189
+Transportes: tren, tren, tren
+
+Plan 2: Paris, Amsterdam
+Precio: 1075 euros
+Duracion: 6 dias
+Puntuacion: 187
+Transportes: tren, tren, tren
+\end{verbatim}
+
 \subsubsection{Explicaci\'on del resultado obtenido}
-\pendiente
+El sistema cumple la restricci\'on principal porque todos los transportes son en
+tren. Tambi\'en respeta el presupuesto y propone visitas culturales en todas las
+ciudades. El primer plan queda ligeramente por encima en puntuaci\'on porque,
+adem\'as de usar tren, incluye ciudades menos masificadas y deja m\'as margen de
+presupuesto.
+
 \subsection{Caso 3: pareja rom\'antica por aniversario}
 \subsubsection{Escenario, objetivo y entrada}
-\pendiente
+Este caso representa una pareja sin ni\~nos que viaja por aniversario. El motivo
+se deja como desconocido para comprobar si el sistema deduce correctamente que
+el perfil debe ser rom\'antico. El presupuesto es de 2200 euros, la duraci\'on es
+de siete d\'ias y se permiten entre dos y tres ciudades.
+
+Comando ejecutado:
+\begin{verbatim}
+(caso-pareja-romantica)
+\end{verbatim}
+
 \subsubsection{Resultado esperado}
-\pendiente
+Esperamos que la fase de deducci\'on interprete el aniversario como viaje
+rom\'antico y que las rutas propuestas incluyan ciudades y gu\'ias compatibles
+con ese motivo. Tambi\'en esperamos que se respete el presupuesto y que la
+preferencia por tren se tenga en cuenta cuando sea posible.
+
 \subsubsection{Salida original de CLIPS}
-\pendiente
+La salida confirma dos recomendaciones rom\'anticas:
+\begin{verbatim}
+Plan 1: Paris, Roma, Viena
+Precio: 1899 euros
+Duracion: 7 dias
+Puntuacion: 288
+Visitas: Torre Eiffel, Trastevere, Belvedere
+
+Plan 2: Lisboa, Sevilla
+Precio: 990 euros
+Duracion: 7 dias
+Puntuacion: 196
+Visitas: Alfama, Santa Cruz, Guadalquivir
+\end{verbatim}
+
 \subsubsection{Explicaci\'on del resultado obtenido}
-\pendiente
+El comportamiento es el esperado porque el sistema deduce el motivo rom\'antico
+a partir del aniversario y selecciona gu\'ias coherentes con ese perfil. El
+primer plan obtiene una puntuaci\'on mucho mayor porque combina tres ciudades
+con alta puntuaci\'on base y varias etapas compatibles. El segundo plan ofrece
+una alternativa m\'as cercana y barata, tambi\'en dentro del presupuesto.
+
 \subsection{Caso 4: grupo de amigos en viaje de fin de curso}
 \subsubsection{Escenario, objetivo y entrada}
-\pendiente
+Este caso representa un grupo de amigos joven con evento de fin de curso. El
+motivo se deja como desconocido para que el sistema deduzca diversi\'on. El viaje
+tiene seis d\'ias, dos ciudades, calidad m\'inima est\'andar y presupuesto de 1700
+euros.
+
+Comando ejecutado:
+\begin{verbatim}
+(caso-amigos-diversion)
+\end{verbatim}
+
 \subsubsection{Resultado esperado}
-\pendiente
+Esperamos que el sistema deduzca un perfil de ocio y diversi\'on, proponga
+ciudades con actividades nocturnas o de ambiente joven y mantenga el precio por
+debajo del presupuesto.
+
 \subsubsection{Salida original de CLIPS}
-\pendiente
+La salida genera dos alternativas de ocio:
+\begin{verbatim}
+Plan 1: Lisboa, Ibiza
+Precio: 1280 euros
+Duracion: 6 dias
+Puntuacion: 159
+Visitas: Barrio Alto, LX Factory, Cala Comte, Dalt Vila
+
+Plan 2: Lisboa, Sevilla
+Precio: 909 euros
+Duracion: 6 dias
+Puntuacion: 157
+Visitas: Barrio Alto, LX Factory, Triana, Alameda
+\end{verbatim}
+
 \subsubsection{Explicaci\'on del resultado obtenido}
-\pendiente
+La prueba valida la deducci\'on de diversi\'on a partir del fin de curso. Los dos
+planes incluyen actividades de ocio y ciudades con etiquetas compatibles. En
+este caso las dos alternativas comparten Lisboa, pero no son el mismo recorrido:
+el sistema recurre a una ruta distinta cuando no encuentra una alternativa
+mejor sin solape completo.
+
 \subsection{Caso 5: naturaleza y lugares menos conocidos}
 \subsubsection{Escenario, objetivo y entrada}
-\pendiente
+Este caso representa una pareja que busca naturaleza, acepta avi\'on y prefiere
+lugares menos conocidos. El presupuesto es de 3500 euros, la duraci\'on de ocho
+d\'ias y se permiten dos o tres ciudades.
+
+Comando ejecutado:
+\begin{verbatim}
+(caso-naturaleza-menos-conocido)
+\end{verbatim}
+
 \subsubsection{Resultado esperado}
-\pendiente
+Esperamos planes con destinos de naturaleza, visitas relacionadas con ese
+motivo y bonificaci\'on por incluir lugares menos masificados. El precio total
+debe mantenerse dentro del presupuesto.
+
 \subsubsection{Salida original de CLIPS}
-\pendiente
+La salida obtiene dos rutas compatibles:
+\begin{verbatim}
+Plan 1: Kyoto, Bali
+Precio: 3442 euros
+Duracion: 8 dias
+Puntuacion: 178
+Visitas: Arashiyama, jardines de templos, Ubud, arrozales
+
+Plan 2: Cancun, Costa Rica
+Precio: 2938 euros
+Duracion: 8 dias
+Puntuacion: 175
+Visitas: Playa Delfines, Volcan Arenal, Monteverde
+\end{verbatim}
+
 \subsubsection{Explicaci\'on del resultado obtenido}
-\pendiente
+El resultado es coherente porque las ciudades propuestas tienen etiquetas o
+gu\'ias compatibles con naturaleza y descanso. Adem\'as, ambas salidas indican
+que se cumple la preferencia por ciudades menos masificadas y la calidad
+m\'inima del alojamiento. La primera recomendaci\'on queda m\'as cerca del l\'imite
+de presupuesto, pero sigue siendo factible.
+
 \subsection{Caso 6: restricciones incompatibles y no soluci\'on}
 \subsubsection{Escenario, objetivo y entrada}
-\pendiente
+Este caso fuerza una situaci\'on complicada: pareja en viaje de boda, motivo
+rom\'antico, solo cuatro d\'ias, presupuesto de 1200 euros, preferencia por tren,
+restricci\'on de evitar avi\'on, calidad m\'inima de lujo y sin aceptar sacrificar
+calidad ni duraci\'on.
+
+Comando ejecutado:
+\begin{verbatim}
+(caso-imposible-sin-avion-asia)
+\end{verbatim}
+
 \subsubsection{Resultado esperado}
-\pendiente
+Esperamos que no se genere ninguna recomendaci\'on factible. Las condiciones son
+demasiado restrictivas para la base de conocimiento: pocos d\'ias, presupuesto
+bajo, calidad de lujo, dos o tres ciudades y prohibici\'on de avi\'on.
+
 \subsubsection{Salida original de CLIPS}
-\pendiente
+La salida confirma el caso de no soluci\'on:
+\begin{verbatim}
+NO SE HA ENCONTRADO NINGUNA RECOMENDACION FACTIBLE
+Las restricciones introducidas no pueden satisfacerse
+con la base de conocimiento actual.
+Sugerencias: aumentar presupuesto/dias, permitir avion
+o bajar la calidad minima.
+\end{verbatim}
+
 \subsubsection{Explicaci\'on del resultado obtenido}
-\pendiente
+La prueba valida que el sistema no fuerza una recomendaci\'on incorrecta. Si no
+existe ning\'un candidato que cumpla todas las restricciones, se informa de
+forma clara y se indican posibles condiciones que el usuario podr\'ia relajar.
+
 \subsection{Verificaci\'on del cumplimiento del enunciado}
-\pendiente
+Con los seis casos se comprueba que el sistema cumple los requisitos principales
+del enunciado. El sistema pregunta o recibe datos del usuario, deduce perfiles
+cuando falta informaci\'on, genera viajes de varias ciudades, incluye
+alojamientos, visitas y transportes, calcula precio total, devuelve dos planes
+cuando existen alternativas y contempla el caso sin soluci\'on.
+
+Tambi\'en se verifica la diferencia entre restricciones y preferencias. Evitar
+avi\'on, presupuesto, d\'ias, calidad m\'inima y compatibilidad familiar act\'uan
+como condiciones obligatorias. En cambio, usar tren, preferir ciudades menos
+conocidas o mejorar calidad se usan para puntuar y explicar planes factibles.
+
 \subsection{An\'alisis global de los resultados de prueba}
-\pendiente
+Los resultados son consistentes con el funcionamiento esperado. En los casos
+factibles se obtienen rutas completas, siempre con precio, duraci\'on, ciudades,
+visitas, alojamientos, transportes y preferencias cumplidas. En el caso
+imposible no se imprime una ruta artificial, sino un mensaje expl\'icito de no
+recomendaci\'on.
+
+La prueba de amigos muestra una limitaci\'on razonable del sistema: cuando no
+hay suficiente variedad sin solape completo, la segunda alternativa puede
+compartir alguna ciudad con la primera. Aun as\'i, no se devuelve el mismo plan,
+sino una ruta distinta. Esto mantiene la salida dentro de la base disponible y
+evita inventar recursos que no existen.
 
 \section{Conclusiones}
 \subsection{Cumplimiento de objetivos}
-\pendiente
-\subsection{Fortalezas del sistema construido}
-\pendiente
-\subsection{Limitaciones actuales y posibles mejoras}
-\pendiente
-\subsection{Aprendizajes sobre ontolog\'ias, reglas y Sistemas Basados en el Conocimiento}
-\pendiente
+El sistema final cumple los objetivos principales de la pr\'actica. Hemos
+construido un Sistema Basado en el Conocimiento capaz de recomendar viajes
+personalizados a partir de datos del usuario, restricciones y preferencias. La
+soluci\'on no se limita a elegir una ciudad, sino que genera itinerarios con dos
+o tres destinos, transportes, alojamientos, visitas, duraci\'on, precio y una
+explicaci\'on de las preferencias cumplidas.
 
-\section{Bibliograf\'ia y fuentes}
-\subsection{Material de la asignatura y enunciado}
-\pendiente
-\subsection{Fuentes del dominio de viajes utilizadas}
-\pendiente
-\subsection{Herramientas y recursos de implementaci\'on}
-\pendiente
+Tambi\'en se cumple el requisito de ofrecer dos alternativas cuando la base de
+conocimiento lo permite. Adem\'as, el sistema contempla el caso en que no existe
+ninguna combinaci\'on factible y lo comunica de forma expl\'icita.
+
+\subsection{Fortalezas del sistema construido}
+Una de las fortalezas del sistema es que separa bien el conocimiento del dominio
+del razonamiento. Las ciudades, alojamientos, visitas y conexiones est\'an
+representadas como hechos, mientras que las decisiones de experto aparecen en
+reglas y funciones de compatibilidad.
+
+Otra fortaleza es la explicabilidad. La salida no muestra solo un nombre de
+destino, sino el precio, los d\'ias, los transportes, las visitas, los
+alojamientos y las preferencias satisfechas. Esto hace que el usuario pueda
+entender por qu\'e se le recomienda cada plan.
+
+Tambi\'en consideramos positiva la modularizaci\'on por fases. El hecho
+\texttt{Fase} permite que la entrevista, la deducci\'on, la generaci\'on, la
+selecci\'on y la salida se ejecuten en orden y sean m\'as f\'aciles de revisar.
+
+\subsection{Limitaciones actuales y posibles mejoras}
+La principal limitaci\'on es que la base de conocimiento es cerrada. El sistema
+no consulta disponibilidad real de vuelos, hoteles o actividades, y los precios
+son estimaciones usadas para razonar dentro de la pr\'actica. En una versi\'on
+m\'as completa se podr\'ian conectar fuentes externas o actualizar precios seg\'un
+temporada.
+
+Otra limitaci\'on es que el origen se modela de forma gen\'erica. Esto simplifica
+la pr\'actica, pero en un sistema real el origen del usuario afectar\'ia mucho al
+precio y al transporte. Tambi\'en podr\'ian incorporarse fechas, clima, visados,
+horarios y preferencias m\'as finas sobre ritmo o tipo de alojamiento.
+
+Como mejora del razonamiento, se podr\'ia enriquecer la explicaci\'on final con
+las decisiones expertas deducidas durante la ejecuci\'on, por ejemplo indicando
+que un aniversario se ha interpretado como viaje rom\'antico o que un viaje
+corto ha limitado el n\'umero de ciudades.
+
+\subsection{Aprendizajes sobre ontolog\'ias, reglas y Sistemas Basados en el Conocimiento}
+La pr\'actica nos ha servido para ver que construir un SBC no consiste solo en
+programar reglas sueltas. Primero hay que entender el dominio, decidir qu\'e
+conceptos importan, separar restricciones de preferencias y formalizar una
+ontolog\'ia que despu\'es pueda trasladarse a hechos y reglas.
+
+Tambi\'en hemos visto la importancia de probar casos variados. Un sistema puede
+parecer correcto con un perfil sencillo, pero fallar cuando se combinan
+restricciones fuertes. Por eso los juegos de prueba han sido \'utiles para
+comprobar tanto recomendaciones normales como el caso sin soluci\'on.
+
+Finalmente, hemos aprendido que CLIPS encaja bien cuando el problema se puede
+expresar mediante hechos, condiciones y reglas de inferencia. En nuestro caso,
+el enfoque nos ha permitido representar conocimiento expl\'icito y justificar
+las recomendaciones de una forma bastante clara.
 
 \appendix
 \section{Salidas literales completas de los juegos de prueba}
+Este ap\'endice recoge las salidas completas guardadas en
+\texttt{SALIDAS\_PRUEBAS.txt}. En el apartado 6 hemos usado un resumen de cada
+caso para no cortar el razonamiento principal de la memoria; aqu\'i dejamos la
+evidencia literal que permite comprobar que las pruebas se han ejecutado sobre
+el sistema final. Todas estas salidas vienen de funciones de prueba definidas
+al final de \texttt{viajes.clp}. Esas funciones precargan el usuario y lanzan
+\texttt{run}, por lo que no requieren entrevista manual, pero recorren el mismo
+razonamiento que una ejecuci\'on interactiva.
+
+\subsection{Preparaci\'on de la ejecuci\'on}
+\lstinputlisting[style=salidaclip,firstline=1,lastline=7]{../SALIDAS_PRUEBAS.txt}
+
 \subsection{Caso familia}
-\pendiente
+\lstinputlisting[style=salidaclip,firstline=8,lastline=57]{../SALIDAS_PRUEBAS.txt}
+
 \subsection{Caso estudiante}
-\pendiente
+\lstinputlisting[style=salidaclip,firstline=58,lastline=105]{../SALIDAS_PRUEBAS.txt}
+
 \subsection{Caso pareja}
-\pendiente
+\lstinputlisting[style=salidaclip,firstline=106,lastline=156]{../SALIDAS_PRUEBAS.txt}
+
 \subsection{Caso amigos}
-\pendiente
+\lstinputlisting[style=salidaclip,firstline=157,lastline=204]{../SALIDAS_PRUEBAS.txt}
+
 \subsection{Caso naturaleza}
-\pendiente
+\lstinputlisting[style=salidaclip,firstline=205,lastline=252]{../SALIDAS_PRUEBAS.txt}
+
 \subsection{Caso sin soluci\'on}
-\pendiente
+\lstinputlisting[style=salidaclip,firstline=253,lastline=267]{../SALIDAS_PRUEBAS.txt}
 
 \section{Documentaci\'on de la ontolog\'ia generada con Prot\'eg\'e}
+\subsection{Archivo y alcance de la ontolog\'ia}
+La ontolog\'ia se entrega en el archivo \texttt{ontologia\_viajes.ttl}. Est\'a en
+formato Turtle y se puede abrir directamente con Prot\'eg\'e. Su objetivo es
+documentar el vocabulario conceptual del sistema: las clases principales del
+dominio, las propiedades que relacionan los conceptos y los atributos m\'as
+importantes que despu\'es se usan en CLIPS.
+
+Hemos separado la ontolog\'ia del motor de inferencia porque cada parte tiene
+una funci\'on distinta. La ontolog\'ia sirve para dejar claro qu\'e conceptos
+existen y c\'omo se relacionan. El archivo \texttt{viajes.clp}, en cambio,
+materializa esa conceptualizaci\'on en hechos y reglas ejecutables.
+
 \subsection{Grafo de clases y relaciones}
-\pendiente
+La jerarqu\'ia de clases de la ontolog\'ia parte de una clase ra\'iz
+\texttt{Entidad}. De ella cuelgan los conceptos principales del dominio:
+\texttt{Usuario}, \texttt{Ciudad}, \texttt{Servicio}, \texttt{Restriccion},
+\texttt{Preferencia}, \texttt{PaqueteViaje} y \texttt{Etapa}. Dentro de
+\texttt{Servicio} hemos agrupado los recursos concretos que puede utilizar un
+viaje: \texttt{Alojamiento}, \texttt{Transporte} y \texttt{Actividad}.
+
+\begin{center}
+\begin{tabular}{p{0.28\textwidth} p{0.28\textwidth} p{0.34\textwidth}}
+Origen & Relaci\'on & Destino \\
+\hline
+\texttt{PaqueteViaje} & \texttt{viajaA} & \texttt{Ciudad} \\
+\texttt{PaqueteViaje} & \texttt{incluyeEtapa} & \texttt{Etapa} \\
+\texttt{PaqueteViaje} & \texttt{usaTransporte} & \texttt{Transporte} \\
+\texttt{Etapa} & \texttt{usaAlojamiento} & \texttt{Alojamiento} \\
+\texttt{Etapa} & \texttt{incluyeActividad} & \texttt{Actividad} \\
+\texttt{PaqueteViaje} & \texttt{cumplePreferencia} & \texttt{Preferencia} \\
+\texttt{PaqueteViaje} & \texttt{respetaRestriccion} & \texttt{Restriccion} \\
+\end{tabular}
+\end{center}
+
+Estas relaciones reflejan la estructura real de la recomendaci\'on. Un paquete
+de viaje no contiene solo un destino, sino varias etapas, transportes,
+alojamientos, actividades y criterios de evaluaci\'on.
+
 \subsection{Fichas de clases, propiedades e instancias}
-\pendiente
+\subsubsection{Clases principales}
+\begin{itemize}
+    \item \texttt{Usuario}: representa el perfil del cliente. Incluye edad,
+    grupo, presencia de ni\~nos, presupuesto, duraci\'on, motivo, calidad m\'inima
+    y preferencias.
+    \item \texttt{Ciudad}: representa cada destino candidato. Guarda nombre,
+    pa\'is, continente, zona, coste diario, seguridad, compatibilidad familiar,
+    popularidad y etiquetas tur\'isticas.
+    \item \texttt{Servicio}: clase general para recursos usados por el viaje.
+    Sus subclases son \texttt{Alojamiento}, \texttt{Transporte} y
+    \texttt{Actividad}.
+    \item \texttt{Alojamiento}: recurso de estancia asociado a una ciudad, con
+    categor\'ia, calidad, precio por noche y compatibilidad con ni\~nos.
+    \item \texttt{Transporte}: conexi\'on utilizada para llegar a los destinos,
+    moverse entre ciudades o volver al origen.
+    \item \texttt{Actividad}: visita o experiencia concreta de una ciudad.
+    \item \texttt{Restriccion}: condici\'on obligatoria que un plan debe cumplir.
+    En el sistema aparecen como presupuesto, duraci\'on, evitar avi\'on, n\'umero
+    de ciudades o calidad m\'inima.
+    \item \texttt{Preferencia}: criterio usado para comparar soluciones
+    factibles, por ejemplo usar tren, escoger lugares menos conocidos o mejorar
+    la calidad.
+    \item \texttt{PaqueteViaje}: soluci\'on recomendada, con ciudades, etapas,
+    precio total y puntuaci\'on.
+    \item \texttt{Etapa}: parte de un paquete centrada en una ciudad concreta.
+\end{itemize}
 
-\section{Evidencias de conceptualizaci\'on con modelo de lenguaje}
-\subsection{Prompt de contexto}
-\pendiente
-\subsection{Preguntas relevantes}
-\pendiente
-\subsection{Fragmentos de respuestas utilizados}
-\pendiente
+\subsubsection{Propiedades de objeto}
+Las propiedades de objeto indican c\'omo se conectan las clases. La ontolog\'ia
+define \texttt{viajaA}, \texttt{incluyeEtapa}, \texttt{usaAlojamiento},
+\texttt{incluyeActividad}, \texttt{usaTransporte}, \texttt{cumplePreferencia}
+y \texttt{respetaRestriccion}. Con ellas se puede expresar que una
+recomendaci\'on visita ciudades, se compone de etapas, usa recursos y se eval\'ua
+con restricciones y preferencias.
 
-\section{Manual breve de ejecuci\'on y estructura de la entrega}
-\pendiente
+\subsubsection{Propiedades de datos}
+Las propiedades de datos recogen los atributos num\'ericos o textuales
+necesarios para razonar. En \texttt{Usuario} aparecen \texttt{edad},
+\texttt{presupuestoEuros} y \texttt{duracionMaxDias}. En \texttt{Ciudad}
+aparece \texttt{costeDiario}. En \texttt{Alojamiento} se usan
+\texttt{precioNoche} y \texttt{calidad}. En \texttt{Transporte} se usan
+\texttt{costeTransporte} y \texttt{horasTransporte}. Finalmente,
+\texttt{PaqueteViaje} tiene \texttt{precioTotal} y \texttt{puntuacion}.
+
+\subsubsection{Instancias representadas en la base de conocimiento}
+El archivo \texttt{ontologia\_viajes.ttl} documenta clases y propiedades. Las
+instancias operativas se han representado en \texttt{viajes.clp}, porque son
+las que necesita el motor de inferencia durante la ejecuci\'on. La base de
+conocimiento contiene:
+\begin{itemize}
+    \item 16 ciudades en \texttt{CiudadesDisponibles}.
+    \item 34 alojamientos en \texttt{AlojamientosDisponibles}.
+    \item 32 actividades en \texttt{ActividadesDisponibles}.
+    \item 36 gu\'ias de visita en \texttt{GuiasDeVisita}.
+    \item 62 conexiones de transporte en \texttt{ConexionesDisponibles}.
+\end{itemize}
+
+Esta decisi\'on evita duplicar toda la base de datos en dos formatos distintos.
+La ontolog\'ia queda como documentaci\'on conceptual y CLIPS queda como
+representaci\'on ejecutable del conocimiento.
 
 \end{document}
